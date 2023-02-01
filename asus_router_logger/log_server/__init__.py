@@ -32,5 +32,5 @@ async def start_log_server() -> None:
         async for packet, (host, port) in udp:
             print("===================================================================")
             print(host, port)
-            print(SyslogMessage.parse(packet).as_dict())
+            print(SyslogMessage.parse(packet.decode("utf-8")).as_dict())
             print("===================================================================")
