@@ -89,6 +89,17 @@ files = [
 ]
 
 [[package]]
+name = "lark-parser"
+version = "0.6.7"
+description = "a modern parsing library"
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "lark-parser-0.6.7.tar.gz", hash = "sha256:062800f3823a6c733ec1d181a2089a22d1f62dbe65f90a3f6b1e6de1934b05ef"},
+]
+
+[[package]]
 name = "nodeenv"
 version = "1.7.0"
 description = "Node.js virtual environment builder"
@@ -287,6 +298,21 @@ files = [
 ]
 
 [[package]]
+name = "syslog-rfc5424-parser"
+version = "0.3.2"
+description = "Parser for RFC5424-compatible Syslog messages"
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "syslog-rfc5424-parser-0.3.2.tar.gz", hash = "sha256:80a9239d4da404a271266000f4c5f00a183af3d03d53d19d7052c8272430bee9"},
+    {file = "syslog_rfc5424_parser-0.3.2-py3-none-any.whl", hash = "sha256:6134ee1958da89ab7f8d32ed5370a49ddabcc99d75a950b6ec59708417f20a7a"},
+]
+
+[package.dependencies]
+lark-parser = ">=0.6.0,<0.7.0"
+
+[[package]]
 name = "typing-extensions"
 version = "4.4.0"
 description = "Backported and Experimental Type Hints for Python 3.7+"
@@ -322,4 +348,4 @@ testing = ["coverage (>=6.2)", "coverage-enable-subprocess (>=1)", "flaky (>=3.7
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "a2aee43a2d79e63cadfd854e20427146953990fe9232b65a054c532a6b4e969c"
+content-hash = "64cbdf2ffa124564e8d95766f73620e85921f7746ad643a0e70b0f9fdbbfa26c"
