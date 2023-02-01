@@ -11,9 +11,11 @@ packages = [{include = "asus_router_logger"}]
 [tool.poetry.dependencies]
 python = "^3.8"
 
-
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.0.2"
+
+[tool.poetry.scripts]
+asus-router-logger = "asus_router_logger.__main__:main"
 
 [build-system]
 requires = ["poetry-core"]
