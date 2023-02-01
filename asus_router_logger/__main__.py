@@ -11,10 +11,19 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-from asus_router_logger.settings import settings
+import anyio
+
+import asus_router_logger.settings
+import asus_router_logger.log_server
+
+
+async def runner() -> None:
+    settings = asus_router_logger.settings.settings()
+    async with anyio.create_task_group() as task_group:
+        task_group.start_soon(asus_router_logger.log_server.start_log_server)
 
 
 def main() -> None:
     """Main entry point of the Asus Router Logger (ARL)
     """
-    print(settings().dict())
+    anyio.run(runner)

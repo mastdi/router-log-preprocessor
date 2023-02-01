@@ -11,6 +11,7 @@ packages = [{include = "asus_router_logger"}]
 [tool.poetry.dependencies]
 python = "^3.8"
 pydantic = {extras = ["dotenv"], version = "^1.10.4"}
+anyio = "^3.6.2"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.0.2"
