@@ -11,11 +11,10 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+import dataclasses
 import datetime
 import re
-from typing import Optional, Literal
-
-import pydantic.dataclasses
+from typing import Optional
 
 _RFC3164_PATTERN = re.compile(
     # Start of log
@@ -34,10 +33,6 @@ _RFC3164_PATTERN = re.compile(
     r"$"
 )
 
-_MONTH_LITERALS = Literal[
-    "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-]
-
 _MONTH = {
     "Jan": 1,
     "Feb": 2,
@@ -50,14 +45,14 @@ _MONTH = {
     "Sep": 9,
     "Oct": 10,
     "Nov": 11,
-    "Dec": 12
+    "Dec": 12,
 }
 
 
-@pydantic.dataclasses.dataclass
+@dataclasses.dataclass
 class LogRecord:
-    """The parsed log record with information contained in an RFC 3164 compatible log.
-    """
+    """The parsed log record with information contained in an RFC 3164 log line"""
+
     facility: int
     severity: int
     timestamp: datetime.datetime
@@ -68,11 +63,7 @@ class LogRecord:
 
 
 def timestamp_to_datetime(
-        month: _MONTH_LITERALS,
-        day: str,
-        hour: str,
-        minute: str,
-        second: str
+    month: str, day: str, hour: str, minute: str, second: str
 ) -> datetime.datetime:
     """The TIMESTAMP field is the local time.
 
@@ -96,7 +87,7 @@ def timestamp_to_datetime(
         hour=int(hour),
         minute=int(minute),
         second=int(second),
-        microsecond=0
+        microsecond=0,
     )
 
 
@@ -111,6 +102,8 @@ def parse(record: bytes) -> LogRecord:
     :return: A parsed log record.
     """
     match = _RFC3164_PATTERN.match(record.decode("ascii"))
+    if match is None:
+        raise RuntimeError("")
     groups = match.groups()
     # Priority is facility * 8 + severity, so divmod is the inverse of that
     facility, severity = divmod(int(groups[0]), 8)
@@ -120,6 +113,6 @@ def parse(record: bytes) -> LogRecord:
         timestamp=timestamp_to_datetime(*groups[1:6]),
         hostname=groups[6],
         process=groups[7],
-        process_id=groups[8],
-        message=groups[9]
+        process_id=int(groups[8]) if groups[8] is not None else None,
+        message=groups[9],
     )

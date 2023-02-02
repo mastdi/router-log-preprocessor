@@ -13,17 +13,15 @@
 #  limitations under the License.
 import anyio
 
-import asus_router_logger.settings
 import asus_router_logger.log_server
+import asus_router_logger.settings
 
 
 async def runner() -> None:
-    settings = asus_router_logger.settings.settings()
     async with anyio.create_task_group() as task_group:
         task_group.start_soon(asus_router_logger.log_server.start_log_server)
 
 
 def main() -> None:
-    """Main entry point of the Asus Router Logger (ARL)
-    """
+    """Main entry point of the Asus Router Logger (ARL)"""
     anyio.run(runner)

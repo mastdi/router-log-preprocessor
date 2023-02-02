@@ -19,14 +19,13 @@ import asus_router_logger.settings
 
 
 async def start_log_server() -> None:
-    """Start the log server.
-    """
+    """Start the log server."""
     settings = asus_router_logger.settings.settings()
     async with await create_udp_socket(
-            family=socket.AF_INET,
-            local_host=settings.log_server_host,
-            local_port=settings.log_server_port,
-            reuse_port=settings.log_server_reuse_port
+        family=socket.AF_INET,
+        local_host=settings.log_server_host,
+        local_port=settings.log_server_port,
+        reuse_port=settings.log_server_reuse_port,
     ) as udp:
         async for packet, (host, port) in udp:
             print("===================================================================")
