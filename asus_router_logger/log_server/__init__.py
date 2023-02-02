@@ -14,7 +14,6 @@
 import socket
 
 from anyio import create_udp_socket
-from syslog_rfc5424_parser import SyslogMessage
 
 import asus_router_logger.settings
 
@@ -32,5 +31,5 @@ async def start_log_server() -> None:
         async for packet, (host, port) in udp:
             print("===================================================================")
             print(host, port)
-            print(SyslogMessage.parse(packet.decode("utf-8")).as_dict())
+            print(packet.decode("ascii").strip())
             print("===================================================================")
