@@ -15,6 +15,7 @@ import socket
 
 from anyio import create_udp_socket
 
+import asus_router_logger.log_server.rfc3164_parser
 import asus_router_logger.settings
 
 
@@ -28,7 +29,6 @@ async def start_log_server() -> None:
         reuse_port=settings.log_server_reuse_port,
     ) as udp:
         async for packet, (host, port) in udp:
-            print("===================================================================")
-            print(host, port)
-            print(packet.decode("ascii").strip())
-            print("===================================================================")
+            print(
+                host, port, asus_router_logger.log_server.rfc3164_parser.parse(packet)
+            )
