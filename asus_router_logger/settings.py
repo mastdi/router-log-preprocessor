@@ -24,7 +24,7 @@ class Settings(BaseSettings):
         default="0.0.0.0",
         description="IP address or host name of the local interface to bind to.",
     )
-    log_server_port: int = Field(default=514, description="Local port to bind to.")
+    log_server_port: int = Field(default=8514, description="Local port to bind to.")
     log_server_reuse_port: bool = Field(
         default=False,
         description="True to allow multiple sockets to bind to the same address/port "
