@@ -13,13 +13,13 @@
 #  limitations under the License.
 import anyio
 
-import asus_router_logger.log_server
+import asus_router_logger.log_server.server
 import asus_router_logger.settings
 
 
 async def runner() -> None:
     async with anyio.create_task_group() as task_group:
-        task_group.start_soon(asus_router_logger.log_server.start_log_server)
+        task_group.start_soon(asus_router_logger.log_server.server.start_log_server)
 
 
 def main() -> None:
