@@ -82,10 +82,10 @@ def test_timestamp_to_datetime(arguments, expected):
 
 
 _MSG1 = (
-    b"<13>Feb  2 13:02:51 GT-AX11000-ABCD-1234567-E wlceventd: "
-    b"wlceventd_proc_event(511): eth7: Disassoc AB:CD:EF:01:23:45, status: 0, "
-    b"reason: Disassociated because sending station is leaving (or has left) "
-    b"BSS (8), rssi:0"
+    "<13>Feb  2 13:02:51 GT-AX11000-ABCD-1234567-E wlceventd: "
+    "wlceventd_proc_event(511): eth7: Disassoc AB:CD:EF:01:23:45, status: 0, "
+    "reason: Disassociated because sending station is leaving (or has left) "
+    "BSS (8), rssi:0"
 )
 _RECORD1 = asus_router_logger.log_server.rfc3164_parser.LogRecord(
     facility=1,
@@ -101,8 +101,8 @@ _RECORD1 = asus_router_logger.log_server.rfc3164_parser.LogRecord(
     "BSS (8), rssi:0",
 )
 _MSG2 = (
-    b"<30>Feb 12 13:02:57 GT-AX11000-ABCD-1234567-E dnsmasq-dhcp[23568]: "
-    b"DHCPDISCOVER(br0) ab:cd:ef:01:23:45"
+    "<30>Feb 12 13:02:57 GT-AX11000-ABCD-1234567-E dnsmasq-dhcp[23568]: "
+    "DHCPDISCOVER(br0) ab:cd:ef:01:23:45"
 )
 _RECORD2 = asus_router_logger.log_server.rfc3164_parser.LogRecord(
     facility=3,

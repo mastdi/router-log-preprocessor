@@ -30,6 +30,11 @@ class Settings(BaseSettings):
         description="True to allow multiple sockets to bind to the same address/port "
         "(not supported on Windows)",
     )
+    logging_name_base: str = Field(
+        default="arl",
+        description="The base name of the logger used internally. "
+        "<logging_name_base>.echo is used to log the logs received.",
+    )
 
 
 @lru_cache

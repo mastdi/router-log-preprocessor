@@ -91,17 +91,17 @@ def timestamp_to_datetime(
     )
 
 
-def parse(record: bytes) -> LogRecord:
+def parse(record: str) -> LogRecord:
     """Parse the raw log record according to The BSD syslog Protocol (RFC 3164).
 
     The message part has two fields known as the TAG field and the CONTENT field. The
     value in the TAG field will be the name of the program or process that generated
     the message. The CONTENT contains the details of the message.
 
-    :param record: A single raw text log record encoded in ASCII.
+    :param record: A single text log record.
     :return: A parsed log record.
     """
-    match = _RFC3164_PATTERN.match(record.decode("ascii"))
+    match = _RFC3164_PATTERN.match(record)
     if match is None:
         raise RuntimeError("")
     groups = match.groups()
