@@ -18,7 +18,7 @@ from anyio import create_udp_socket
 
 import asus_router_logger.log_server.rfc3164_parser
 import asus_router_logger.settings
-from asus_router_logger.handlers.wlc import handle_wireless_lan_controller_event
+from asus_router_logger.preprocessors.wlc import handle_wireless_lan_controller_event
 
 
 async def _no_op(
