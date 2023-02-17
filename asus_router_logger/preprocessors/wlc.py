@@ -19,7 +19,7 @@ from asus_router_logger.domain.wlc import WlcEvent, WlcEventModel
 from asus_router_logger.log_server.rfc3164_parser import LogRecord
 
 
-def handle_wireless_lan_controller_event(record: LogRecord) -> WlcEventModel:
+def preprocess_wireless_lan_controller_event(record: LogRecord) -> WlcEventModel:
     settings = asus_router_logger.settings.settings()
     logger = logging.getLogger(settings.logging_name_base)
     logger.debug("Received WLC event daemon log: %r", record)

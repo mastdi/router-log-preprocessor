@@ -18,7 +18,9 @@ from anyio import create_udp_socket
 
 import asus_router_logger.log_server.rfc3164_parser
 import asus_router_logger.settings
-from asus_router_logger.preprocessors.wlc import handle_wireless_lan_controller_event
+from asus_router_logger.preprocessors.wlc import (
+    preprocess_wireless_lan_controller_event,
+)
 
 
 async def _no_op(
@@ -31,7 +33,7 @@ async def start_log_server() -> None:
     """Start the log server."""
     settings = asus_router_logger.settings.settings()
     echo_logger = logging.getLogger(f"{settings.logging_name_base}.echo")
-    preprocessors = {"wlceventd": handle_wireless_lan_controller_event}
+    preprocessors = {"wlceventd": preprocess_wireless_lan_controller_event}
     async with await create_udp_socket(
         family=socket.AF_INET,
         local_host=settings.log_server_host,

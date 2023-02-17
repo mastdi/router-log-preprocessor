@@ -14,7 +14,9 @@
 import asus_router_logger.log_server.rfc3164_parser
 from asus_router_logger.domain.mac_base import MAC
 from asus_router_logger.domain.wlc import WlcEvent
-from asus_router_logger.preprocessors.wlc import handle_wireless_lan_controller_event
+from asus_router_logger.preprocessors.wlc import (
+    preprocess_wireless_lan_controller_event,
+)
 
 _RECORD1 = asus_router_logger.log_server.rfc3164_parser.LogRecord(
     facility=1,
@@ -32,7 +34,7 @@ _RECORD1 = asus_router_logger.log_server.rfc3164_parser.LogRecord(
 
 
 def test_disassociated_message():
-    model = handle_wireless_lan_controller_event(_RECORD1)
+    model = preprocess_wireless_lan_controller_event(_RECORD1)
 
     assert model.location == "eth7"
     assert model.mac_address == MAC("AB:CD:EF:01:23:45")
