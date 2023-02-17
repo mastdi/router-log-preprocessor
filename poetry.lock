@@ -147,6 +147,18 @@ files = [
 ]
 
 [[package]]
+name = "macaddress"
+version = "2.0.2"
+description = "Like ``ipaddress``, but for hardware identifiers such as MAC addresses."
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "macaddress-2.0.2-py3-none-any.whl", hash = "sha256:6f4a0430f9b5af6d98a582b8d527ba2cd3f0825fce5503a9ce5c73acb772c30f"},
+    {file = "macaddress-2.0.2.tar.gz", hash = "sha256:1400ccdc28d747102d57ae61e5b78d8985872930810ceb8860cd49abd1e1fa37"},
+]
+
+[[package]]
 name = "nodeenv"
 version = "1.7.0"
 description = "Node.js virtual environment builder"
@@ -444,4 +456,4 @@ testing = ["coverage (>=6.2)", "coverage-enable-subprocess (>=1)", "flaky (>=3.7
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "6ce8aa5f82e1cb49efa9fa037e18548402b0aeefb1179dd2589b19d2bb5ba9f3"
+content-hash = "b5ea322fd3ee2f8bfbbf98d0da0d6af6afc544695450e4800b91e1b01fb78859"
