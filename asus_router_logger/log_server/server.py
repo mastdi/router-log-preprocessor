@@ -44,16 +44,21 @@ async def start_log_server() -> None:
             # The packet is a single log entry encoded in ascii according to RFC3164
             raw_record = packet.decode("ascii")
             echo_logger.debug(raw_record)
+
             # Parse the log record
             record = asus_router_logger.log_server.rfc3164_parser.parse(raw_record)
+
             # Pre-process the record
             if record.process is None:
+                # Only preprocessors for logs with a named process is supported
                 continue
             preprocessor = preprocessors.get(record.process, _no_op)
             model = preprocessor(record)
+
             # Store the model to storage
             if model is None:
                 # Nothing further to process here
                 continue
+
             # Act if needed
             print(host, port, model)
