@@ -23,7 +23,10 @@ repos:
     rev: 5.0.4
     hooks:
     -   id: flake8
-        args: [--max-line-length=88]
+        # black may raise E203 whitespace before ':' warnings in style guide enforcement
+        # tools like Flake8. Since E203 is not PEP 8 compliant, you should tell Flake8
+        # to ignore these warnings
+        args: ["--max-line-length=88", "--ignore=E203"]
 -   repo: https://github.com/psf/black
     rev: 22.6.0
     hooks:
