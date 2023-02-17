@@ -16,15 +16,15 @@ import socket
 
 from anyio import create_udp_socket
 
-import asus_router_logger.log_server.rfc3164_parser
 import asus_router_logger.settings
+import asus_router_logger.util.rfc3164_parser
 from asus_router_logger.preprocessors.wlc import (
     preprocess_wireless_lan_controller_event,
 )
 
 
 def _no_op(
-    record: asus_router_logger.log_server.rfc3164_parser.LogRecord,
+    record: asus_router_logger.util.rfc3164_parser.LogRecord,
 ) -> None:
     return
 
@@ -46,7 +46,7 @@ async def start_log_server() -> None:
             echo_logger.debug(raw_record)
 
             # Parse the log record
-            record = asus_router_logger.log_server.rfc3164_parser.parse(raw_record)
+            record = asus_router_logger.util.rfc3164_parser.parse(raw_record)
 
             # Pre-process the record
             if record.process is None:

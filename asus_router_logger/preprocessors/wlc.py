@@ -16,7 +16,7 @@ import logging
 import asus_router_logger.settings
 from asus_router_logger.domain.mac_base import MAC
 from asus_router_logger.domain.wlc import WlcEvent, WlcEventModel
-from asus_router_logger.log_server.rfc3164_parser import LogRecord
+from asus_router_logger.util.rfc3164_parser import LogRecord
 
 
 def preprocess_wireless_lan_controller_event(record: LogRecord) -> WlcEventModel:

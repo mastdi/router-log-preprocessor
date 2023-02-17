@@ -11,11 +11,23 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
 import datetime
 
 import pytest
 
-import asus_router_logger.log_server.rfc3164_parser
+import asus_router_logger.util.rfc3164_parser
 
 _NOW = datetime.datetime.now().replace(microsecond=0)
 
@@ -74,9 +86,7 @@ _NOW = datetime.datetime.now().replace(microsecond=0)
     ],
 )
 def test_timestamp_to_datetime(arguments, expected):
-    timestamp = asus_router_logger.log_server.rfc3164_parser.timestamp_to_datetime(
-        *arguments
-    )
+    timestamp = asus_router_logger.util.rfc3164_parser.timestamp_to_datetime(*arguments)
 
     assert timestamp == expected
 
@@ -87,10 +97,10 @@ _MSG1 = (
     "reason: Disassociated because sending station is leaving (or has left) "
     "BSS (8), rssi:0"
 )
-_RECORD1 = asus_router_logger.log_server.rfc3164_parser.LogRecord(
+_RECORD1 = asus_router_logger.util.rfc3164_parser.LogRecord(
     facility=1,
     severity=5,
-    timestamp=asus_router_logger.log_server.rfc3164_parser.timestamp_to_datetime(
+    timestamp=asus_router_logger.util.rfc3164_parser.timestamp_to_datetime(
         "Feb", "2", "13", "02", "51"
     ),
     hostname="GT-AX11000-ABCD-1234567-E",
@@ -104,10 +114,10 @@ _MSG2 = (
     "<30>Feb 12 13:02:57 GT-AX11000-ABCD-1234567-E dnsmasq-dhcp[23568]: "
     "DHCPDISCOVER(br0) ab:cd:ef:01:23:45"
 )
-_RECORD2 = asus_router_logger.log_server.rfc3164_parser.LogRecord(
+_RECORD2 = asus_router_logger.util.rfc3164_parser.LogRecord(
     facility=3,
     severity=6,
-    timestamp=asus_router_logger.log_server.rfc3164_parser.timestamp_to_datetime(
+    timestamp=asus_router_logger.util.rfc3164_parser.timestamp_to_datetime(
         "Feb", "12", "13", "02", "57"
     ),
     hostname="GT-AX11000-ABCD-1234567-E",
@@ -121,6 +131,6 @@ _RECORD2 = asus_router_logger.log_server.rfc3164_parser.LogRecord(
     "message,expected_record", [(_MSG1, _RECORD1), [_MSG2, _RECORD2]]
 )
 def test_parse(message, expected_record):
-    record = asus_router_logger.log_server.rfc3164_parser.parse(message)
+    record = asus_router_logger.util.rfc3164_parser.parse(message)
 
     assert record == expected_record

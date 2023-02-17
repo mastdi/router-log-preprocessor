@@ -11,17 +11,17 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-import asus_router_logger.log_server.rfc3164_parser
+import asus_router_logger.util.rfc3164_parser
 from asus_router_logger.domain.mac_base import MAC
 from asus_router_logger.domain.wlc import WlcEvent
 from asus_router_logger.preprocessors.wlc import (
     preprocess_wireless_lan_controller_event,
 )
 
-_RECORD1 = asus_router_logger.log_server.rfc3164_parser.LogRecord(
+_RECORD1 = asus_router_logger.util.rfc3164_parser.LogRecord(
     facility=1,
     severity=5,
-    timestamp=asus_router_logger.log_server.rfc3164_parser.timestamp_to_datetime(
+    timestamp=asus_router_logger.util.rfc3164_parser.timestamp_to_datetime(
         "Feb", "2", "13", "02", "51"
     ),
     hostname="GT-AX11000-ABCD-1234567-E",
