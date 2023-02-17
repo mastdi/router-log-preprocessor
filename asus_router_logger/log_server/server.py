@@ -23,7 +23,7 @@ from asus_router_logger.preprocessors.wlc import (
 )
 
 
-async def _no_op(
+def _no_op(
     record: asus_router_logger.log_server.rfc3164_parser.LogRecord,
 ) -> None:
     return
