@@ -18,6 +18,11 @@ macaddress = "^2.0.2"
 pre-commit = "^3.0.2"
 pytest = "^7.2.1"
 
+[tool.mypy]
+plugins = [
+  "pydantic.mypy"
+]
+
 [tool.poetry.scripts]
 asus-router-logger = "asus_router_logger.__main__:main"
 
