@@ -21,6 +21,13 @@ from asus_router_logger.domain.mac_base import MacBase
 class WlcEvent(enum.Enum):
     DISASSOCIATION = enum.auto()
 
+    @classmethod
+    def from_reason(cls, reason: str) -> "WlcEvent":
+        reason = reason.lstrip()
+        if reason.startswith("Disassociated"):
+            return cls.DISASSOCIATION
+        raise ValueError("Unknown reason")
+
 
 @pydantic.dataclasses.dataclass
 class WlcEventModel(MacBase):
