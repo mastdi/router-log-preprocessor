@@ -35,10 +35,10 @@ class LogHandler:
 
         # Pre-process the record
         if record.process == "wlceventd":
-            model = wlc_preprocessor.preprocess_wireless_lan_controller_event(record)
+            message = wlc_preprocessor.preprocess_wireless_lan_controller_event(record)
         else:
             # Only preprocessors for logs with a named process is supported
             return
 
         # Act if needed
-        print(host, port, model)
+        print(host, port, message)
