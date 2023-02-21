@@ -35,5 +35,5 @@ class MAC(EUI48):
 
 
 @pydantic.dataclasses.dataclass
-class MacBase:
+class Message:
     mac_address: MAC

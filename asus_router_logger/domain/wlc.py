@@ -15,7 +15,7 @@ import enum
 
 import pydantic.dataclasses
 
-from asus_router_logger.domain.mac_base import MacBase
+from asus_router_logger.domain.message import Message
 
 
 class WlcEvent(enum.Enum):
@@ -30,7 +30,7 @@ class WlcEvent(enum.Enum):
 
 
 @pydantic.dataclasses.dataclass
-class WlcEventModel(MacBase):
+class WlcEventModel(Message):
     location: str
     event: WlcEvent
     status: int
