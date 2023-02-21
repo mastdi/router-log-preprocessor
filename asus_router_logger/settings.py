@@ -35,6 +35,9 @@ class Settings(BaseSettings):
         description="The base name of the logger used internally. "
         "<logging_name_base>.echo is used to log the logs received.",
     )
+    logging_level: str = Field(
+        default="INFO", description="The log level used by this application."
+    )
 
 
 @lru_cache
