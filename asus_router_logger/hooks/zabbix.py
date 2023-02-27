@@ -21,6 +21,7 @@ from anyio import to_thread
 
 import asus_router_logger.settings
 from asus_router_logger.domain.message import MAC, Message
+from asus_router_logger.domain.wlc import WlcEventModel
 from asus_router_logger.util.rfc3164_parser import LogRecord
 
 
@@ -44,6 +45,45 @@ class ZabbixTrapperHook:
             await self.discover_client(record, message)
             # Allow the Zabbix server(s) to discover and create prototype items
             await anyio.sleep(60)
+        measurements = []
+        if isinstance(message, WlcEventModel):
+            measurements.append(
+                pyzabbix.ZabbixMetric(
+                    host=record.hostname,
+                    key=f"rlp.wlceventd[location,{message.mac_address}]",
+                    value=message.location,
+                    clock=int(record.timestamp.timestamp()),
+                )
+            )
+            measurements.append(
+                pyzabbix.ZabbixMetric(
+                    host=record.hostname,
+                    key=f"rlp.wlceventd[event,{message.mac_address}]",
+                    value=message.event.name,
+                    clock=int(record.timestamp.timestamp()),
+                )
+            )
+            measurements.append(
+                pyzabbix.ZabbixMetric(
+                    host=record.hostname,
+                    key=f"rlp.wlceventd[status,{message.mac_address}]",
+                    value=str(message.status),
+                    clock=int(record.timestamp.timestamp()),
+                )
+            )
+            measurements.append(
+                pyzabbix.ZabbixMetric(
+                    host=record.hostname,
+                    key=f"rlp.wlceventd[rssi,{message.mac_address}]",
+                    value=str(message.rssi),
+                    clock=int(record.timestamp.timestamp()),
+                )
+            )
+        # py-zabbix does not support async communication, so for now we utilize anyio
+        # to overcome this.
+        self._logger.info("Sending data: %r", measurements)
+        response = await to_thread.run_sync(self._sender.send, measurements)
+        self._logger.info("Response: %r", response)
 
     async def discover_client(self, record: LogRecord, message: Message) -> None:
         """Discover a new client based on the mac address in the message.
