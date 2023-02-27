@@ -16,6 +16,7 @@ import logging
 import asus_router_logger.preprocessors.wlc as wlc_preprocessor
 import asus_router_logger.settings
 import asus_router_logger.util.rfc3164_parser
+from asus_router_logger.hooks.zabbix import ZabbixTrapperHook
 
 
 class LogHandler:
@@ -23,6 +24,7 @@ class LogHandler:
         settings = asus_router_logger.settings.settings()
         self.logger = logging.getLogger(f"{settings.logging_name_base}")
         self.echo_logger = logging.getLogger(f"{settings.logging_name_base}.echo")
+        self.zabbix_trapper_hook = ZabbixTrapperHook()
         self.logger.info("Log handler is ready")
 
     async def handle(self, packet: bytes, host: str, port: int) -> None:
@@ -41,4 +43,4 @@ class LogHandler:
             return
 
         # Act if needed
-        print(host, port, message)
+        await self.zabbix_trapper_hook.send(record, message)
