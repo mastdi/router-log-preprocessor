@@ -12,7 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 from functools import lru_cache
-from typing import Union
+from typing import List, Tuple, Union
 
 from pydantic import BaseSettings, Field, IPvAnyAddress
 
@@ -38,6 +38,30 @@ class Settings(BaseSettings):
     logging_level: str = Field(
         default="INFO", description="The log level used by this application."
     )
+    zabbix_addresses: str = Field(
+        default="",
+        description="Multiple comma-delimited addresses can be provided to use several "
+        "independent Zabbix servers in parallel. Each address is an IP "
+        "address or DNS name and optional port separated by colon. If port "
+        "is not specified, default port 10051 is used.",
+    )
+
+    @property
+    def zabbix_servers(self) -> List[Tuple[str, int]]:
+        """The parsed zabbix_addresses list as IP/DNS and port tuple.
+
+        :return: List of Zabbix servers to communicate to.
+        """
+        servers = []
+        addresses = self.zabbix_addresses.split(",")
+        for address in addresses:
+            address_parts = address.split(":")
+            if len(address_parts) == 2:
+                servers.append((address_parts[0], int(address_parts[1])))
+            else:
+                assert len(address_parts) == 1
+                servers.append((address_parts[0], 10051))
+        return servers
 
 
 @lru_cache
