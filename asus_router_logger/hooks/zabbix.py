@@ -12,11 +12,10 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 import json
-from typing import Set
+import typing
 
 import anyio
 import pyzabbix
-from anyio import to_thread
 
 import asus_router_logger.domain as domain
 import asus_router_logger.hooks.abc as abc
@@ -31,7 +30,7 @@ class ZabbixTrapper(abc.Hook):
         self._sender = pyzabbix.ZabbixSender(
             zabbix_server=zabbix_servers[0][0], zabbix_port=zabbix_servers[0][1]
         )
-        self._known_mac: Set[domain.MAC] = set()
+        self._known_mac: typing.Set[domain.MAC] = set()
 
     async def send(self, record: domain.LogRecord, message: domain.Message) -> None:
         if message.mac_address not in self._known_mac:
@@ -75,7 +74,7 @@ class ZabbixTrapper(abc.Hook):
         # py-zabbix does not support async communication, so for now we utilize anyio
         # to overcome this.
         self._logger.info("Sending data: %r", measurements)
-        response = await to_thread.run_sync(self._sender.send, measurements)
+        response = await anyio.to_thread.run_sync(self._sender.send, measurements)
         self._logger.info("Response: %r", response)
 
     async def discover_client(
@@ -102,6 +101,6 @@ class ZabbixTrapper(abc.Hook):
         # py-zabbix does not support async communication, so for now we utilize anyio
         # to overcome this.
         self._logger.info("Discovering: %r", metric)
-        response = await to_thread.run_sync(self._sender.send, [metric])
+        response = await anyio.to_thread.run_sync(self._sender.send, [metric])
         self._logger.info("Response: %r", response)
         assert response.processed == 1, response
