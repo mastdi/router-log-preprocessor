@@ -12,7 +12,6 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 import json
-import logging
 from typing import Set
 
 import anyio
@@ -20,25 +19,21 @@ import pyzabbix
 from anyio import to_thread
 
 import asus_router_logger.domain as domain
+import asus_router_logger.hooks.abc as abc
 import asus_router_logger.settings
 
 
-class ZabbixTrapperHook:
+class ZabbixTrapper(abc.Hook):
     def __init__(self):
+        super().__init__()
         settings = asus_router_logger.settings.settings()
         zabbix_servers = settings.zabbix_servers
-        self._logger = logging.getLogger(settings.logging_name_base)
         self._sender = pyzabbix.ZabbixSender(
             zabbix_server=zabbix_servers[0][0], zabbix_port=zabbix_servers[0][1]
         )
         self._known_mac: Set[domain.MAC] = set()
 
-    async def send(self, record: domain.LogRecord, message: domain.Message):
-        """Send the log record information to the Zabbix Server(s).
-
-        :param record: The parsed log record.
-        :param message: The preprocessed message.
-        """
+    async def send(self, record: domain.LogRecord, message: domain.Message) -> None:
         if message.mac_address not in self._known_mac:
             await self.discover_client(record, message)
             # Allow the Zabbix server(s) to discover and create prototype items
