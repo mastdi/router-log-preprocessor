@@ -35,27 +35,38 @@ def _log_record_factory(message: str) -> asus_router_logger.domain.LogRecord:
 
 
 @pytest.mark.parametrize(
-    argnames="message,expected_wlc_event",
+    argnames="message,expected_wlc_event,expected_rssi",
     argvalues=[
         (
             "wlceventd_proc_event(511): wl0.1: Disassoc AB:CD:EF:01:23:45, status: 0, "
             "reason: Disassociated because sending station is leaving (or has left) "
             "BSS (8), rssi:0",
             domain.WlcEvent.DISASSOCIATION,
+            0,
         ),
         (
             "wlceventd_proc_event(494): wl0.1: Deauth_ind AB:CD:EF:01:23:45, "
             "status: 0, reason: Unspecified reason (1), rssi:0",
             domain.WlcEvent.DEAUTH_IND,
+            0,
         ),
         (
             "wlceventd_proc_event(530): wl0.1: Auth AB:CD:EF:01:23:45, "
             "status: Successful (0), rssi:0",
-            domain.WlcEvent.AUTH,
+            domain.WlcEvent.AUTHENTICATE,
+            0,
+        ),
+        (
+            "wlceventd_proc_event(559): wl0.1: Assoc AB:CD:EF:01:23:45, "
+            "status: Successful (0), rssi:-74",
+            domain.WlcEvent.ASSOCIATION,
+            -74,
         ),
     ],
 )
-def test_disassociated_message(message: str, expected_wlc_event: domain.WlcEvent):
+def test_disassociated_message(
+    message: str, expected_wlc_event: domain.WlcEvent, expected_rssi: int
+):
     record = _log_record_factory(message)
 
     model = preprocess_wireless_lan_controller_event(record)
@@ -64,4 +75,4 @@ def test_disassociated_message(message: str, expected_wlc_event: domain.WlcEvent
     assert model.mac_address == domain.MAC("AB:CD:EF:01:23:45")
     assert model.status == 0
     assert model.event == expected_wlc_event
-    assert model.rssi == 0
+    assert model.rssi == expected_rssi

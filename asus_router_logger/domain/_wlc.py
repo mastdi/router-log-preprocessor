@@ -21,7 +21,8 @@ from asus_router_logger.domain._message import Message
 class WlcEvent(enum.Enum):
     DISASSOCIATION = 0
     DEAUTH_IND = 1
-    AUTH = 2
+    AUTHENTICATE = 2
+    ASSOCIATION = 3
 
     @classmethod
     def from_event(cls, event: str) -> "WlcEvent":
@@ -31,7 +32,9 @@ class WlcEvent(enum.Enum):
         if event.startswith("deauth_ind"):
             return cls.DEAUTH_IND
         if event.startswith("auth"):
-            return cls.AUTH
+            return cls.AUTHENTICATE
+        if event.startswith("assoc"):
+            return cls.ASSOCIATION
         raise ValueError("Unknown event")
 
 
