@@ -12,8 +12,8 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 import asus_router_logger.util.rfc3164_parser
-from asus_router_logger.domain.message import MAC
-from asus_router_logger.domain.wlc import WlcEvent
+from asus_router_logger.domain._message import MAC
+from asus_router_logger.domain._wlc import WlcEvent
 from asus_router_logger.preprocessors.wlc import (
     preprocess_wireless_lan_controller_event,
 )

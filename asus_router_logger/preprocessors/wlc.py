@@ -13,13 +13,13 @@
 #  limitations under the License.
 import logging
 
+import asus_router_logger.domain as domain
 import asus_router_logger.settings
-from asus_router_logger.domain.message import MAC
-from asus_router_logger.domain.wlc import WlcEvent, WlcEventModel
-from asus_router_logger.util.rfc3164_parser import LogRecord
 
 
-def preprocess_wireless_lan_controller_event(record: LogRecord) -> WlcEventModel:
+def preprocess_wireless_lan_controller_event(
+    record: domain.LogRecord,
+) -> domain.WlcEventModel:
     settings = asus_router_logger.settings.settings()
     logger = logging.getLogger(settings.logging_name_base)
     logger.debug("Received WLC event daemon log: %r", record)
@@ -42,9 +42,9 @@ def preprocess_wireless_lan_controller_event(record: LogRecord) -> WlcEventModel
     assert message_parts[3].startswith("rssi")
     rssi = message_parts[3].split(":")[1]
 
-    return WlcEventModel(
-        mac_address=MAC(mac_address),
-        event=WlcEvent.from_reason(reason),
+    return domain.WlcEventModel(
+        mac_address=domain.MAC(mac_address),
+        event=domain.WlcEvent.from_reason(reason),
         location=location,
         status=int(status),
         rssi=int(rssi),

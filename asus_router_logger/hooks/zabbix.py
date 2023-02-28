@@ -19,10 +19,8 @@ import anyio
 import pyzabbix
 from anyio import to_thread
 
+import asus_router_logger.domain as domain
 import asus_router_logger.settings
-from asus_router_logger.domain.message import MAC, Message
-from asus_router_logger.domain.wlc import WlcEventModel
-from asus_router_logger.util.rfc3164_parser import LogRecord
 
 
 class ZabbixTrapperHook:
@@ -33,9 +31,9 @@ class ZabbixTrapperHook:
         self._sender = pyzabbix.ZabbixSender(
             zabbix_server=zabbix_servers[0][0], zabbix_port=zabbix_servers[0][1]
         )
-        self._known_mac: Set[MAC] = set()
+        self._known_mac: Set[domain.MAC] = set()
 
-    async def send(self, record: LogRecord, message: Message):
+    async def send(self, record: domain.LogRecord, message: domain.Message):
         """Send the log record information to the Zabbix Server(s).
 
         :param record: The parsed log record.
@@ -46,7 +44,7 @@ class ZabbixTrapperHook:
             # Allow the Zabbix server(s) to discover and create prototype items
             await anyio.sleep(60)
         measurements = []
-        if isinstance(message, WlcEventModel):
+        if isinstance(message, domain.WlcEventModel):
             measurements.append(
                 pyzabbix.ZabbixMetric(
                     host=record.hostname,
@@ -85,7 +83,9 @@ class ZabbixTrapperHook:
         response = await to_thread.run_sync(self._sender.send, measurements)
         self._logger.info("Response: %r", response)
 
-    async def discover_client(self, record: LogRecord, message: Message) -> None:
+    async def discover_client(
+        self, record: domain.LogRecord, message: domain.Message
+    ) -> None:
         """Discover a new client based on the mac address in the message.
 
         :param record: The log record containing hostname, process name and timestamp.
