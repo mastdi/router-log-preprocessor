@@ -62,6 +62,12 @@ def _log_record_factory(message: str) -> asus_router_logger.domain.LogRecord:
             domain.WlcEvent.ASSOCIATION,
             -74,
         ),
+        (
+            "wlceventd_proc_event(540): wl0.1: ReAssoc AB:CD:EF:01:23:45, "
+            "status: Successful (0), rssi:-70",
+            domain.WlcEvent.REASSOCIATION,
+            -70,
+        ),
     ],
 )
 def test_disassociated_message(

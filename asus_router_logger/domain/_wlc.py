@@ -23,6 +23,7 @@ class WlcEvent(enum.Enum):
     DEAUTH_IND = 1
     AUTHENTICATE = 2
     ASSOCIATION = 3
+    REASSOCIATION = 4
 
     @classmethod
     def from_event(cls, event: str) -> "WlcEvent":
@@ -35,6 +36,8 @@ class WlcEvent(enum.Enum):
             return cls.AUTHENTICATE
         if event.startswith("assoc"):
             return cls.ASSOCIATION
+        if event.startswith("reassoc"):
+            return cls.REASSOCIATION
         raise ValueError("Unknown event")
 
 
