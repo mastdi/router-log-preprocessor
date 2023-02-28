@@ -21,6 +21,7 @@ from asus_router_logger.domain._message import Message
 class WlcEvent(enum.Enum):
     DISASSOCIATION = 0
     DEAUTH_IND = 1
+    AUTH = 2
 
     @classmethod
     def from_event(cls, event: str) -> "WlcEvent":
@@ -29,7 +30,9 @@ class WlcEvent(enum.Enum):
             return cls.DISASSOCIATION
         if event.startswith("deauth_ind"):
             return cls.DEAUTH_IND
-        raise ValueError("Unknown reason")
+        if event.startswith("auth"):
+            return cls.AUTH
+        raise ValueError("Unknown event")
 
 
 @pydantic.dataclasses.dataclass

@@ -48,6 +48,11 @@ def _log_record_factory(message: str) -> asus_router_logger.domain.LogRecord:
             "status: 0, reason: Unspecified reason (1), rssi:0",
             domain.WlcEvent.DEAUTH_IND,
         ),
+        (
+            "wlceventd_proc_event(530): wl0.1: Auth AB:CD:EF:01:23:45, "
+            "status: Successful (0), rssi:0",
+            domain.WlcEvent.AUTH,
+        ),
     ],
 )
 def test_disassociated_message(message: str, expected_wlc_event: domain.WlcEvent):
