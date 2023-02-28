@@ -19,13 +19,16 @@ from asus_router_logger.domain._message import Message
 
 
 class WlcEvent(enum.Enum):
-    DISASSOCIATION = enum.auto()
+    DISASSOCIATION = 0
+    DEAUTH_IND = 1
 
     @classmethod
-    def from_reason(cls, reason: str) -> "WlcEvent":
-        reason = reason.lstrip()
-        if reason.startswith("Disassociated"):
+    def from_event(cls, event: str) -> "WlcEvent":
+        event = event.lstrip().lower()
+        if event.startswith("disassoc"):
             return cls.DISASSOCIATION
+        if event.startswith("deauth_ind"):
+            return cls.DEAUTH_IND
         raise ValueError("Unknown reason")
 
 
@@ -35,3 +38,4 @@ class WlcEventModel(Message):
     event: WlcEvent
     status: int
     rssi: int
+    reason: str

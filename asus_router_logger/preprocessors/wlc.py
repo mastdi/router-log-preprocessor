@@ -44,7 +44,8 @@ def preprocess_wireless_lan_controller_event(
 
     return domain.WlcEventModel(
         mac_address=domain.MAC(mac_address),
-        event=domain.WlcEvent.from_reason(reason),
+        event=domain.WlcEvent.from_event(event),
+        reason=reason,
         location=location,
         status=int(status),
         rssi=int(rssi),
