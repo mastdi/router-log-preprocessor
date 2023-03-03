@@ -92,7 +92,7 @@ class ZabbixTrapper(abc.Hook):
             return
         self._known_mac.add(message.mac_address)
 
-        value = json.dumps([{"mac": str(mac) for mac in self._known_mac}])
+        value = json.dumps([{"mac": str(mac)} for mac in self._known_mac])
         metric = pyzabbix.ZabbixMetric(
             host=record.hostname,
             key=f"rlp.client_discovery[{record.process.lower()}]",
