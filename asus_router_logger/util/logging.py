@@ -46,12 +46,12 @@ def logger_factory() -> logging.Logger:
 
     # Setup a file handler to log in desired directory
     handler = logging.FileHandler(
-        filename=settings.logging_directory / f"{settings.logging_name_base}.log"
+        filename=settings.logging_directory / f"{settings.logging_name_base}.app.log"
     )
     handler.setFormatter(formatter)
 
     # Configure the logger
-    base_logger = logging.getLogger(settings.logging_name_base)
+    base_logger = logging.getLogger(f"{settings.logging_name_base}.app")
     base_logger.addHandler(handler)
     base_logger.setLevel(settings.logging_level)
 
