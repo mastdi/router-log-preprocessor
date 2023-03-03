@@ -26,7 +26,7 @@ class LogHandler:
     async def handle(self, packet: bytes, host: str, port: int) -> None:
         # The packet is a single log entry encoded in ascii according to RFC3164
         entry = packet.decode("ascii")
-        logging.echo_logger.debug(entry)
+        logging.echo_logger.debug(entry.strip())
 
         # Parse the log record
         record = asus_router_logger.util.rfc3164_parser.parse(entry)
