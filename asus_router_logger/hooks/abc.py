@@ -12,17 +12,11 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 import abc
-import logging
 
 import asus_router_logger.domain as domain
-import asus_router_logger.settings
 
 
 class Hook(abc.ABC):
-    def __init__(self):
-        settings = asus_router_logger.settings.settings()
-        self._logger = logging.getLogger(settings.logging_name_base)
-
     async def send(self, record: domain.LogRecord, message: domain.Message) -> None:
         """Send the log record and preprocessed message using the hook.
 

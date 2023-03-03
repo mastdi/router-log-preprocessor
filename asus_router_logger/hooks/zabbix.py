@@ -20,6 +20,7 @@ import pyzabbix
 import asus_router_logger.domain as domain
 import asus_router_logger.hooks.abc as abc
 import asus_router_logger.settings
+import asus_router_logger.util.logging as logging
 
 
 class ZabbixTrapper(abc.Hook):
@@ -73,9 +74,9 @@ class ZabbixTrapper(abc.Hook):
             )
         # py-zabbix does not support async communication, so for now we utilize anyio
         # to overcome this.
-        self._logger.info("Sending data: %r", measurements)
+        logging.logger.info("Sending data: %r", measurements)
         response = await anyio.to_thread.run_sync(self._sender.send, measurements)
-        self._logger.info("Response: %r", response)
+        logging.logger.info("Response: %r", response)
 
     async def discover_client(
         self, record: domain.LogRecord, message: domain.Message
@@ -100,7 +101,7 @@ class ZabbixTrapper(abc.Hook):
         )
         # py-zabbix does not support async communication, so for now we utilize anyio
         # to overcome this.
-        self._logger.info("Discovering: %r", metric)
+        logging.logger.info("Discovering: %r", metric)
         response = await anyio.to_thread.run_sync(self._sender.send, [metric])
-        self._logger.info("Response: %r", response)
+        logging.logger.info("Response: %r", response)
         assert response.processed == 1, response

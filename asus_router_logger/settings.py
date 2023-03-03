@@ -11,9 +11,11 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+import pathlib
 from functools import lru_cache
 from typing import List, Tuple, Union
 
+import pydantic
 from pydantic import BaseSettings, Field, IPvAnyAddress
 
 
@@ -37,6 +39,10 @@ class Settings(BaseSettings):
     )
     logging_level: str = Field(
         default="INFO", description="The log level used by this application."
+    )
+    logging_directory: pydantic.DirectoryPath = Field(
+        default=pathlib.Path.cwd(),
+        description="The base directory where logs from this application resides.",
     )
     zabbix_addresses: str = Field(
         default="",

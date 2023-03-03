@@ -11,11 +11,10 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-import logging
 import typing
 
 import asus_router_logger.domain as domain
-import asus_router_logger.settings
+import asus_router_logger.util.logging as logging
 
 _KNOWN_MESSAGE_PARTS = frozenset(("reason", "status", "rssi"))
 
@@ -23,9 +22,7 @@ _KNOWN_MESSAGE_PARTS = frozenset(("reason", "status", "rssi"))
 def preprocess_wireless_lan_controller_event(
     record: domain.LogRecord,
 ) -> domain.WlcEventModel:
-    settings = asus_router_logger.settings.settings()
-    logger = logging.getLogger(settings.logging_name_base)
-    logger.debug("Received WLC event daemon log: %r", record)
+    logging.logger.debug("Received WLC event daemon log: %r", record)
 
     # Remove message type from the message, i.e. wlceventd_proc_event(xxx):
     message = record.message[record.message.find(": ") + 2 :]
