@@ -13,7 +13,7 @@
 #  limitations under the License.
 import socket
 
-from anyio import create_udp_socket
+from anyio import create_task_group, create_udp_socket
 
 import asus_router_logger.log_server.handler
 import asus_router_logger.settings
@@ -31,5 +31,6 @@ async def start_log_server() -> None:
         local_port=settings.log_server_port,
         reuse_port=settings.log_server_reuse_port,
     ) as udp:
-        async for packet, (host, port) in udp:
-            await log_handler.handle(packet, host, port)
+        async with create_task_group() as task_group:
+            async for packet, (host, port) in udp:
+                task_group.start_soon(log_handler.handle, packet, host, port)
