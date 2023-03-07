@@ -100,7 +100,12 @@ class ZabbixTrapper(abc.Hook):
                 # Discovery were sent some time ago
                 return 0
             # Wait until the default wait time have elapsed
-            return default_wait_time - seconds_since_discovery
+            time_left = default_wait_time - seconds_since_discovery
+            logging.logger.debug(
+                "Another task have issued a discovery event. Waiting %f seconds",
+                time_left,
+            )
+            return time_left
         self._known_mac[message.mac_address] = datetime.datetime.utcnow()
 
         value = json.dumps([{"mac": str(mac)} for mac in self._known_mac])
