@@ -32,7 +32,9 @@ class ZabbixTrapper(abc.Hook):
         self._sender = pyzabbix.ZabbixSender(
             zabbix_server=zabbix_servers[0][0], zabbix_port=zabbix_servers[0][1]
         )
-        self._known_mac: typing.Dict[domain.MAC, datetime.datetime] = dict()
+        self._known_mac: typing.Dict[
+            typing.Tuple[domain.MAC, str], datetime.datetime
+        ] = dict()
 
     async def send(self, record: domain.LogRecord, message: domain.Message) -> None:
         seconds_until_discovered = await self.discover_client(record, message)
@@ -88,12 +90,13 @@ class ZabbixTrapper(abc.Hook):
         :param message: The message containing the mac address.
         """
         assert record.process is not None
+        known_key = (message.mac_address, record.process)
         default_wait_time = 60
-        if message.mac_address in self._known_mac:
+        if known_key in self._known_mac:
             # MAC address is already known, so no need to rediscover it,
             # but we might need to wait in the case that the discovery were just sent
             now = datetime.datetime.utcnow()
-            discovered_at = self._known_mac[message.mac_address]
+            discovered_at = self._known_mac[known_key]
 
             seconds_since_discovery = (now - discovered_at).total_seconds()
             if seconds_since_discovery >= default_wait_time:
@@ -107,7 +110,7 @@ class ZabbixTrapper(abc.Hook):
                 time_left,
             )
             return time_left
-        self._known_mac[message.mac_address] = datetime.datetime.utcnow()
+        self._known_mac[known_key] = datetime.datetime.utcnow()
 
         value = json.dumps([{"mac": str(mac)} for mac in self._known_mac])
         metric = pyzabbix.ZabbixMetric(
