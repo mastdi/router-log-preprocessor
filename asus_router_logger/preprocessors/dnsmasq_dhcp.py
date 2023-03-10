@@ -22,4 +22,12 @@ def preprocess_dnsmasq_dhcp_event(
 ) -> typing.Optional[domain.DnsmasqDhcpAcknowledge]:
     logging.logger.debug("Received dnsmasq-dhcp event log: %r", record)
 
-    return None
+    if not record.message.startswith("DHCPACK"):
+        return None
+    _, ip_address, mac_address, hostname = record.message.split()
+
+    return domain.DnsmasqDhcpAcknowledge(
+        mac_address=domain.MAC(mac_address),
+        ip_address=ip_address,  # type: ignore
+        hostname=hostname,
+    )
