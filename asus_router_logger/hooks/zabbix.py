@@ -129,7 +129,7 @@ class ZabbixTrapper(abc.Hook):
             return time_left
         self._known_mac[known_key] = datetime.datetime.utcnow()
 
-        value = json.dumps([{"mac": str(mac)} for mac in self._known_mac])
+        value = json.dumps([{"mac": str(mac[0])} for mac in self._known_mac])
         metric = pyzabbix.ZabbixMetric(
             host=record.hostname,
             key=f"rlp.client_discovery[{record.process.lower()}]",
