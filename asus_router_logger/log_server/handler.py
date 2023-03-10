@@ -11,7 +11,11 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+import typing
+
+import asus_router_logger.domain as domain
 import asus_router_logger.hooks.zabbix
+import asus_router_logger.preprocessors.dnsmasq_dhcp as dnsmasq_dhcp_preprocessor
 import asus_router_logger.preprocessors.wlc as wlc_preprocessor
 import asus_router_logger.settings
 import asus_router_logger.util.logging as logging
@@ -32,11 +36,15 @@ class LogHandler:
         record = asus_router_logger.util.rfc3164_parser.parse(entry)
 
         # Pre-process the record
+        message: typing.Optional[domain.Message]
         if record.process == "wlceventd":
             message = wlc_preprocessor.preprocess_wireless_lan_controller_event(record)
+        elif record.process == "dnsmasq-dhcp":
+            message = dnsmasq_dhcp_preprocessor.preprocess_dnsmasq_dhcp_event(record)
         else:
             # Only preprocessors for logs with a named process is supported
             return
 
         # Act if needed
-        await self.zabbix_trapper.send(record, message)
+        if message is not None:
+            await self.zabbix_trapper.send(record, message)
