@@ -102,7 +102,8 @@ class ZabbixTrapper(abc.Hook):
             # Wait until the default wait time have elapsed
             time_left = default_wait_time - seconds_since_discovery
             logging.logger.debug(
-                "Another task have issued a discovery event. Waiting %f seconds",
+                "Another task have issued a discovery event of %s. Waiting %f seconds",
+                message.mac_address,
                 time_left,
             )
             return time_left
