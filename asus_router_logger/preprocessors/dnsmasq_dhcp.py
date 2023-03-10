@@ -11,16 +11,15 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-from asus_router_logger.domain._dnsmasq_dhcp import DnsmasqDhcpAcknowledge
-from asus_router_logger.domain._message import MAC, Message
-from asus_router_logger.domain._wlc import WlcEvent, WlcEventModel
-from asus_router_logger.util.rfc3164_parser import LogRecord
+import typing
 
-__all__ = [
-    "Message",
-    "MAC",
-    "WlcEventModel",
-    "WlcEvent",
-    "LogRecord",
-    "DnsmasqDhcpAcknowledge",
-]
+import asus_router_logger.domain as domain
+import asus_router_logger.util.logging as logging
+
+
+def preprocess_dnsmasq_dhcp_event(
+    record: domain.LogRecord,
+) -> typing.Optional[domain.DnsmasqDhcpAcknowledge]:
+    logging.logger.debug("Received dnsmasq-dhcp event log: %r", record)
+
+    return None
