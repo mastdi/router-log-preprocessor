@@ -75,6 +75,23 @@ class ZabbixTrapper(abc.Hook):
                     clock=int(record.timestamp.timestamp()),
                 )
             )
+        elif isinstance(message, domain.DnsmasqDhcpAcknowledge):
+            measurements.append(
+                pyzabbix.ZabbixMetric(
+                    host=record.hostname,
+                    key=f"rlp.dnsmasq_dhcp[ip_address,{message.mac_address}]",
+                    value=str(message.ip_address),
+                    clock=int(record.timestamp.timestamp()),
+                )
+            )
+            measurements.append(
+                pyzabbix.ZabbixMetric(
+                    host=record.hostname,
+                    key=f"rlp.dnsmasq_dhcp[hostname,{message.mac_address}]",
+                    value=message.hostname,
+                    clock=int(record.timestamp.timestamp()),
+                )
+            )
         # py-zabbix does not support async communication, so for now we utilize anyio
         # to overcome this.
         logging.logger.info("Sending data: %r", measurements)
