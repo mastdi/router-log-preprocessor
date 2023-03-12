@@ -24,7 +24,13 @@ def preprocess_dnsmasq_dhcp_event(
 
     if not record.message.startswith("DHCPACK"):
         return None
-    _, ip_address, mac_address, hostname = record.message.split()
+    dhcp_acknowledge_parts = record.message.split()
+    ip_address = dhcp_acknowledge_parts[1]
+    mac_address = dhcp_acknowledge_parts[2]
+    hostname = ""
+    if len(dhcp_acknowledge_parts) == 4:
+        # Hostname is not always present in DHCPACK message
+        hostname = dhcp_acknowledge_parts[3]
 
     return domain.DnsmasqDhcpAcknowledge(
         mac_address=domain.MAC(mac_address),
