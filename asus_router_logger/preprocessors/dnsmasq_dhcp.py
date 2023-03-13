@@ -11,10 +11,13 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+import re
 import typing
 
 import asus_router_logger.domain as domain
 import asus_router_logger.util.logging as logging
+
+_DHCP_ACK_PATTERN = re.compile(r"^(\S+)\s(\S+)\s(\S+)\s?(\S+)?$")
 
 
 def preprocess_dnsmasq_dhcp_event(
@@ -24,13 +27,16 @@ def preprocess_dnsmasq_dhcp_event(
 
     if not record.message.startswith("DHCPACK"):
         return None
-    dhcp_acknowledge_parts = record.message.split()
-    ip_address = dhcp_acknowledge_parts[1]
-    mac_address = dhcp_acknowledge_parts[2]
-    hostname = ""
-    if len(dhcp_acknowledge_parts) == 4:
+
+    dhcp_acknowledge_match = _DHCP_ACK_PATTERN.match(record.message)
+    assert dhcp_acknowledge_match is not None, record.message
+    dhcp_acknowledge_groups = dhcp_acknowledge_match.groups()
+    ip_address = dhcp_acknowledge_groups[1]
+    mac_address = dhcp_acknowledge_groups[2]
+    hostname = dhcp_acknowledge_groups[3]
+    if hostname is None:
         # Hostname is not always present in DHCPACK message
-        hostname = dhcp_acknowledge_parts[3]
+        hostname = ""
 
     return domain.DnsmasqDhcpAcknowledge(
         mac_address=domain.MAC(mac_address),
