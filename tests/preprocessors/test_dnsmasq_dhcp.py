@@ -47,6 +47,17 @@ def test_dhcp_ack():
     assert model.hostname == "fake-client"
 
 
+def test_dhcp_ack_without_hostname():
+    record = _log_record_factory("DHCPACK(br1) 192.168.101.216 01:23:45:67:89:AB")
+
+    model = preprocess_dnsmasq_dhcp_event(record)
+
+    assert model is not None
+    assert model.mac_address == domain.MAC("01:23:45:67:89:AB")
+    assert model.ip_address == ipaddress.IPv4Address("192.168.101.216")
+    assert model.hostname == ""
+
+
 @pytest.mark.parametrize(
     argnames="message",
     argvalues=(
