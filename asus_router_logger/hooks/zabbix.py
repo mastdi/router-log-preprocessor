@@ -132,7 +132,7 @@ class ZabbixTrapper(abc.Hook):
         ] = datetime.datetime.utcnow()
 
         value = json.dumps(
-            [{"mac": str(mac[0])} for mac in self._known_mac[record.process]]
+            [{"mac": str(mac)} for mac in self._known_mac[record.process]]
         )
         metric = pyzabbix.ZabbixMetric(
             host=record.hostname,
