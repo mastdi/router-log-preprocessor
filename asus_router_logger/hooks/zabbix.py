@@ -21,18 +21,14 @@ import pyzabbix
 
 import asus_router_logger.domain as domain
 import asus_router_logger.hooks.abc as abc
-import asus_router_logger.settings
 import asus_router_logger.util.logging as logging
 
 
 class ZabbixTrapper(abc.Hook):
-    def __init__(self):
+    def __init__(self, sender, default_wait_time=60):
         super().__init__()
-        settings = asus_router_logger.settings.settings()
-        zabbix_servers = settings.zabbix_servers
-        self._sender = pyzabbix.ZabbixSender(
-            zabbix_server=zabbix_servers[0][0], zabbix_port=zabbix_servers[0][1]
-        )
+        self._sender = sender
+        self._default_wait_time = default_wait_time
         self._known_mac: typing.DefaultDict[
             str, typing.Dict[domain.MAC, datetime.datetime]
         ] = collections.defaultdict(dict)
@@ -108,7 +104,6 @@ class ZabbixTrapper(abc.Hook):
         :param message: The message containing the mac address.
         """
         assert record.process is not None
-        default_wait_time = 60
         if message.mac_address in self._known_mac[record.process]:
             # MAC address is already known, so no need to rediscover it,
             # but we might need to wait in the case that the discovery were just sent
@@ -116,11 +111,11 @@ class ZabbixTrapper(abc.Hook):
             discovered_at = self._known_mac[record.process][message.mac_address]
 
             seconds_since_discovery = (now - discovered_at).total_seconds()
-            if seconds_since_discovery >= default_wait_time:
+            if seconds_since_discovery >= self._default_wait_time:
                 # Discovery were sent some time ago
                 return 0
             # Wait until the default wait time have elapsed
-            time_left = default_wait_time - seconds_since_discovery
+            time_left = self._default_wait_time - seconds_since_discovery
             logging.logger.debug(
                 "Another task have issued a discovery event of %s. Waiting %f seconds",
                 message.mac_address,
@@ -146,4 +141,4 @@ class ZabbixTrapper(abc.Hook):
         response = await anyio.to_thread.run_sync(self._sender.send, [metric])
         logging.logger.info("Response: %r", response)
         assert response.processed == 1, response
-        return default_wait_time
+        return self._default_wait_time
