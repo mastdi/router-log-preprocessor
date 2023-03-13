@@ -49,6 +49,8 @@ class ZabbixTrapper(abc.Hook):
         measurements = []
         model_fields = dataclasses.fields(message)  # type: ignore
         for field in model_fields:
+            if field.name == "mac_address":
+                continue
             measurements.append(
                 pyzabbix.ZabbixMetric(
                     host=record.hostname,
