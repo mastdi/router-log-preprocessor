@@ -12,6 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 import collections
+import dataclasses
 import datetime
 import json
 import typing
@@ -38,55 +39,22 @@ class ZabbixTrapper(abc.Hook):
         if seconds_until_discovered > 0:
             # Allow the Zabbix server(s) to discover and create prototype items
             await anyio.sleep(seconds_until_discovered)
+        assert record.process is not None
+        # Ensure process is formatted according to Zabbix recommendations
+        process = record.process.lower().replace("-", "_")
+        # Convert record datetime to timestamp in full seconds
+        clock = int(record.timestamp.timestamp())
+
+        # Construct the measurements from the model
         measurements = []
-        if isinstance(message, domain.WlcEventModel):
+        model_fields = dataclasses.fields(message)  # type: ignore
+        for field in model_fields:
             measurements.append(
                 pyzabbix.ZabbixMetric(
                     host=record.hostname,
-                    key=f"rlp.wlceventd[location,{message.mac_address}]",
-                    value=message.location,
-                    clock=int(record.timestamp.timestamp()),
-                )
-            )
-            measurements.append(
-                pyzabbix.ZabbixMetric(
-                    host=record.hostname,
-                    key=f"rlp.wlceventd[event,{message.mac_address}]",
-                    value=message.event.name,
-                    clock=int(record.timestamp.timestamp()),
-                )
-            )
-            measurements.append(
-                pyzabbix.ZabbixMetric(
-                    host=record.hostname,
-                    key=f"rlp.wlceventd[status,{message.mac_address}]",
-                    value=str(message.status),
-                    clock=int(record.timestamp.timestamp()),
-                )
-            )
-            measurements.append(
-                pyzabbix.ZabbixMetric(
-                    host=record.hostname,
-                    key=f"rlp.wlceventd[rssi,{message.mac_address}]",
-                    value=str(message.rssi),
-                    clock=int(record.timestamp.timestamp()),
-                )
-            )
-        elif isinstance(message, domain.DnsmasqDhcpAcknowledge):
-            measurements.append(
-                pyzabbix.ZabbixMetric(
-                    host=record.hostname,
-                    key=f"rlp.dnsmasq_dhcp[ip_address,{message.mac_address}]",
-                    value=str(message.ip_address),
-                    clock=int(record.timestamp.timestamp()),
-                )
-            )
-            measurements.append(
-                pyzabbix.ZabbixMetric(
-                    host=record.hostname,
-                    key=f"rlp.dnsmasq_dhcp[hostname,{message.mac_address}]",
-                    value=message.hostname,
-                    clock=int(record.timestamp.timestamp()),
+                    key=f"rlp.{process}[{field.name},{message.mac_address}]",
+                    value=getattr(message, field.name),
+                    clock=clock,
                 )
             )
         # py-zabbix does not support async communication, so for now we utilize anyio
