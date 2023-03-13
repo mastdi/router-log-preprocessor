@@ -11,6 +11,7 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+import collections
 import datetime
 import json
 import typing
@@ -32,9 +33,9 @@ class ZabbixTrapper(abc.Hook):
         self._sender = pyzabbix.ZabbixSender(
             zabbix_server=zabbix_servers[0][0], zabbix_port=zabbix_servers[0][1]
         )
-        self._known_mac: typing.Dict[
-            typing.Tuple[domain.MAC, str], datetime.datetime
-        ] = dict()
+        self._known_mac: typing.DefaultDict[
+            str, typing.Dict[domain.MAC, datetime.datetime]
+        ] = collections.defaultdict(dict)
 
     async def send(self, record: domain.LogRecord, message: domain.Message) -> None:
         seconds_until_discovered = await self.discover_client(record, message)
@@ -107,13 +108,12 @@ class ZabbixTrapper(abc.Hook):
         :param message: The message containing the mac address.
         """
         assert record.process is not None
-        known_key = (message.mac_address, record.process)
         default_wait_time = 60
-        if known_key in self._known_mac:
+        if message.mac_address in self._known_mac[record.process]:
             # MAC address is already known, so no need to rediscover it,
             # but we might need to wait in the case that the discovery were just sent
             now = datetime.datetime.utcnow()
-            discovered_at = self._known_mac[known_key]
+            discovered_at = self._known_mac[record.process][message.mac_address]
 
             seconds_since_discovery = (now - discovered_at).total_seconds()
             if seconds_since_discovery >= default_wait_time:
@@ -127,9 +127,13 @@ class ZabbixTrapper(abc.Hook):
                 time_left,
             )
             return time_left
-        self._known_mac[known_key] = datetime.datetime.utcnow()
+        self._known_mac[record.process][
+            message.mac_address
+        ] = datetime.datetime.utcnow()
 
-        value = json.dumps([{"mac": str(mac[0])} for mac in self._known_mac])
+        value = json.dumps(
+            [{"mac": str(mac[0])} for mac in self._known_mac[record.process]]
+        )
         metric = pyzabbix.ZabbixMetric(
             host=record.hostname,
             key=f"rlp.client_discovery[{record.process.lower()}]",
