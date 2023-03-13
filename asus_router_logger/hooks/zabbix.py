@@ -14,6 +14,7 @@
 import collections
 import dataclasses
 import datetime
+import enum
 import json
 import typing
 
@@ -51,11 +52,14 @@ class ZabbixTrapper(abc.Hook):
         for field in model_fields:
             if field.name == "mac_address":
                 continue
+            value = getattr(message, field.name)
+            if isinstance(value, enum.Enum):
+                value = value.value
             measurements.append(
                 pyzabbix.ZabbixMetric(
                     host=record.hostname,
                     key=f"rlp.{process}[{field.name},{message.mac_address}]",
-                    value=getattr(message, field.name),
+                    value=value,
                     clock=clock,
                 )
             )
