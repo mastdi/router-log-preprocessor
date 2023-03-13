@@ -100,6 +100,23 @@ class ZabbixTrapper(abc.Hook):
     ) -> float:
         """Discover a new client based on the mac address in the message.
 
+        There are three cases of client discovery:
+        1) The client have not been discovered before
+        2) The client have recently been discovered
+        3) The client have been discovered for a long time
+
+        A discovery packet will only be sent to Zabbix in the first case and the callee
+        will be instructed to wait for the full default_wait_time period before sending
+        the actual data to Zabbix. This ensures that the Zabbix Trapper process is aware
+        of the (newly created) item prototype(s).
+
+        If a client have recently been discovered the callee will be instructed to wait
+        the remaining time of the default_wait_time before sending the actual data to
+        Zabbix.
+
+        For the last case the callee will be instructed to wait 0 seconds, i.e. they can
+        send the data to Zabbix immediately.
+
         :param record: The log record containing hostname, process name and timestamp.
         :param message: The message containing the mac address.
         """
