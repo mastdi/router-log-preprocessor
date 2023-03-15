@@ -11,18 +11,16 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-import collections
 import dataclasses
-import datetime
 import enum
 import json
-import typing
 
 import anyio
 import pyzabbix
 
 import asus_router_logger.domain as domain
 import asus_router_logger.hooks.abc as abc
+import asus_router_logger.hooks.zabbix._known_clients as known_clients
 import asus_router_logger.util.logging as logging
 
 
@@ -30,15 +28,18 @@ class ZabbixTrapper(abc.Hook):
     def __init__(self, sender, default_wait_time=60):
         super().__init__()
         self._sender = sender
-        self._default_wait_time = default_wait_time
-        self._known_mac: typing.DefaultDict[
-            str, typing.Dict[domain.MAC, datetime.datetime]
-        ] = collections.defaultdict(dict)
+        self._wait_time = default_wait_time
+        self._known_clients = known_clients.KnownClients(default_wait_time)
 
     async def send(self, record: domain.LogRecord, message: domain.Message) -> None:
         seconds_until_discovered = await self.discover_client(record, message)
         if seconds_until_discovered > 0:
             # Allow the Zabbix server(s) to discover and create prototype items
+            logging.logger.debug(
+                "Another task have issued a discovery event of %s. Waiting %f seconds",
+                message.mac_address,
+                seconds_until_discovered,
+            )
             await anyio.sleep(seconds_until_discovered)
         assert record.process is not None
         # Ensure process is formatted according to Zabbix recommendations
@@ -95,30 +96,17 @@ class ZabbixTrapper(abc.Hook):
         :param message: The message containing the mac address.
         """
         assert record.process is not None
-        if message.mac_address in self._known_mac[record.process]:
+        if self._known_clients.is_client_known(record.process, message.mac_address):
             # MAC address is already known, so no need to rediscover it,
             # but we might need to wait in the case that the discovery were just sent
-            now = datetime.datetime.utcnow()
-            discovered_at = self._known_mac[record.process][message.mac_address]
-
-            seconds_since_discovery = (now - discovered_at).total_seconds()
-            if seconds_since_discovery >= self._default_wait_time:
-                # Discovery were sent some time ago
-                return 0
-            # Wait until the default wait time have elapsed
-            time_left = self._default_wait_time - seconds_since_discovery
-            logging.logger.debug(
-                "Another task have issued a discovery event of %s. Waiting %f seconds",
-                message.mac_address,
-                time_left,
+            return self._known_clients.remaining_wait_time(
+                record.process, message.mac_address
             )
-            return time_left
-        self._known_mac[record.process][
-            message.mac_address
-        ] = datetime.datetime.utcnow()
+        # Mark client as known
+        self._known_clients.add_client(record.process, message.mac_address)
 
         value = json.dumps(
-            [{"mac": str(mac)} for mac in self._known_mac[record.process]]
+            [{"mac": str(mac)} for mac in self._known_clients.clients(record.process)]
         )
         metric = pyzabbix.ZabbixMetric(
             host=record.hostname,
@@ -132,4 +120,4 @@ class ZabbixTrapper(abc.Hook):
         response = await anyio.to_thread.run_sync(self._sender.send, [metric])
         logging.logger.info("Response: %r", response)
         assert response.processed == 1, response
-        return self._default_wait_time
+        return self._wait_time
