@@ -13,8 +13,6 @@
 #  limitations under the License.
 import typing
 
-import pyzabbix
-
 import asus_router_logger.domain as domain
 import asus_router_logger.hooks.zabbix
 import asus_router_logger.preprocessors.dnsmasq_dhcp as dnsmasq_dhcp_preprocessor
@@ -25,13 +23,8 @@ import asus_router_logger.util.rfc3164_parser
 
 
 class LogHandler:
-    def __init__(self):
-        settings = asus_router_logger.settings.settings()
-        zabbix_servers = settings.zabbix_servers
-        sender = pyzabbix.ZabbixSender(
-            zabbix_server=zabbix_servers[0][0], zabbix_port=zabbix_servers[0][1]
-        )
-        self.zabbix_trapper = asus_router_logger.hooks.zabbix.ZabbixTrapper(sender)
+    def __init__(self, zabbix_trapper: asus_router_logger.hooks.zabbix.ZabbixTrapper):
+        self.zabbix_trapper = zabbix_trapper
         logging.logger.info("Log handler is ready")
 
     async def handle(self, packet: bytes, host: str, port: int) -> None:
