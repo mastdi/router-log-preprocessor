@@ -16,6 +16,7 @@ import typing
 import pyzabbix
 
 import asus_router_logger.domain
+import asus_router_logger.hooks.zabbix._known_clients as _known_clients
 import asus_router_logger.hooks.zabbix._mapper as mapper
 import asus_router_logger.util.rfc3164_parser
 
@@ -65,3 +66,16 @@ def test_map_client_message():
     assert int(_get_value(measurements, "event")) == _MESSAGE.event.value
     assert int(_get_value(measurements, "rssi")) == _MESSAGE.rssi
     assert _get_value(measurements, "reason") == _MESSAGE.reason
+
+
+def test_map_client_discovery():
+    known_clients = _known_clients.KnownClients(42)
+    known_clients.add_client(_RECORD.process, _MESSAGE.mac_address)
+
+    measurements = mapper.map_client_discovery(_RECORD, known_clients)
+
+    assert len(measurements) == 1
+    measurement = measurements[0]
+    assert measurement.clock == int(_RECORD.timestamp.timestamp())
+    assert measurement.host == _RECORD.hostname
+    assert measurement.value == '[{"mac":"' + str(_MESSAGE.mac_address) + '"}]'

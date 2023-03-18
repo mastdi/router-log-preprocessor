@@ -13,11 +13,13 @@
 #  limitations under the License.
 import dataclasses
 import enum
+import json
 import typing
 
 import pyzabbix
 
 import asus_router_logger.domain as domain
+import asus_router_logger.hooks.zabbix._known_clients as _known_clients
 
 
 def map_client_message(
@@ -48,3 +50,22 @@ def map_client_message(
             )
         )
     return measurements
+
+
+def map_client_discovery(
+    record: domain.LogRecord, known_clients: _known_clients.KnownClients
+) -> typing.List[pyzabbix.ZabbixMetric]:
+    assert record.process is not None
+    value = json.dumps(
+        [{"mac": str(mac)} for mac in known_clients.clients(record.process)],
+        indent=None,
+        separators=(",", ":"),
+    )
+    return [
+        pyzabbix.ZabbixMetric(
+            host=record.hostname,
+            key=f"rlp.client_discovery[{record.process.lower()}]",
+            value=value,
+            clock=int(record.timestamp.timestamp()),
+        )
+    ]
