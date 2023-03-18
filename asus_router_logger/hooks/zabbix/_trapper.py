@@ -35,6 +35,12 @@ class ZabbixTrapper(abc.Hook):
         seconds_until_discovered = await self.discover_client(record, message)
         if seconds_until_discovered > 0:
             # Allow the Zabbix server(s) to discover and create prototype items
+            logging.logger.debug(
+                "Pending discovery event of %s on %s. Waiting %f seconds",
+                message.mac_address,
+                record.process,
+                seconds_until_discovered,
+            )
             await anyio.sleep(seconds_until_discovered)
         assert record.process is not None
         # Ensure process is formatted according to Zabbix recommendations
@@ -94,15 +100,9 @@ class ZabbixTrapper(abc.Hook):
         if self._known_clients.is_client_known(record.process, message.mac_address):
             # MAC address is already known, so no need to rediscover it,
             # but we might need to wait in the case that the discovery were just sent
-            remaining_wait_time = self._known_clients.remaining_wait_time(
+            return self._known_clients.remaining_wait_time(
                 record.process, message.mac_address
             )
-            logging.logger.debug(
-                "Another task have issued a discovery event of %s. Waiting %f seconds",
-                message.mac_address,
-                remaining_wait_time,
-            )
-            return remaining_wait_time
         # Mark client as known
         self._known_clients.add_client(record.process, message.mac_address)
 
