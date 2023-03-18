@@ -11,8 +11,6 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-import dataclasses
-import enum
 import json
 
 import anyio
@@ -21,6 +19,7 @@ import pyzabbix
 import asus_router_logger.domain as domain
 import asus_router_logger.hooks.abc as abc
 import asus_router_logger.hooks.zabbix._known_clients as known_clients
+import asus_router_logger.hooks.zabbix._mapper as mapper
 import asus_router_logger.util.logging as logging
 
 
@@ -42,29 +41,7 @@ class ZabbixTrapper(abc.Hook):
                 seconds_until_discovered,
             )
             await anyio.sleep(seconds_until_discovered)
-        assert record.process is not None
-        # Ensure process is formatted according to Zabbix recommendations
-        process = record.process.lower().replace("-", "_")
-        # Convert record datetime to timestamp in full seconds
-        clock = int(record.timestamp.timestamp())
-
-        # Construct the measurements from the model
-        measurements = []
-        model_fields = dataclasses.fields(message)  # type: ignore
-        for field in model_fields:
-            if field.name == "mac_address":
-                continue
-            value = getattr(message, field.name)
-            if isinstance(value, enum.Enum):
-                value = value.value
-            measurements.append(
-                pyzabbix.ZabbixMetric(
-                    host=record.hostname,
-                    key=f"rlp.{process}[{field.name},{message.mac_address}]",
-                    value=value,
-                    clock=clock,
-                )
-            )
+        measurements = mapper.map_client_message(record, message)
         # py-zabbix does not support async communication, so for now we utilize anyio
         # to overcome this.
         logging.logger.info("Sending data: %r", measurements)
