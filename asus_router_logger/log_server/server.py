@@ -19,6 +19,7 @@ from anyio import create_task_group, create_udp_socket
 import asus_router_logger.hooks.zabbix
 import asus_router_logger.log_server.handler
 import asus_router_logger.settings
+import asus_router_logger.util.logging as logging
 import asus_router_logger.util.rfc3164_parser
 
 
@@ -48,6 +49,12 @@ async def start_log_server() -> None:
         local_port=settings.log_server_port,
         reuse_port=settings.log_server_reuse_port,
     ) as udp:
+        logging.logger.info(
+            "Listen for logs on UDP %s:%d - Reuse port: %r",
+            settings.log_server_host,
+            settings.log_server_port,
+            settings.log_server_reuse_port,
+        )
         async with create_task_group() as task_group:
             async for packet, (host, port) in udp:
                 task_group.start_soon(log_handler.handle, packet, host, port)
