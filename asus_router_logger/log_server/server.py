@@ -11,8 +11,6 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-import socket
-
 import pyzabbix
 from anyio import create_task_group, create_udp_socket
 
@@ -44,7 +42,6 @@ async def start_log_server() -> None:
 
     settings = asus_router_logger.settings.settings()
     async with await create_udp_socket(
-        family=socket.AF_INET,
         local_host=settings.log_server_host,
         local_port=settings.log_server_port,
         reuse_port=settings.log_server_reuse_port,
