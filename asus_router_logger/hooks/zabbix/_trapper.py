@@ -31,6 +31,15 @@ class ZabbixTrapper(abc.Hook):
         self._known_clients = known_clients.KnownClients(default_wait_time)
 
     async def send(self, record: domain.LogRecord, message: domain.Message) -> None:
+        """Send the preprocessed message to the corresponding Zabbix Trapper item(s).
+
+        For client messages a low-level discovery will be sent first and the
+        corresponding Zabbix Trapper item(s) will be delayed until Zabbix have been
+        given time to synchronize caches.
+
+        :param record: The log record containing hostname, process name and timestamp.
+        :param message: The message containing the mac address.
+        """
         seconds_until_discovered = await self.discover_client(record, message)
         if seconds_until_discovered > 0:
             # Allow the Zabbix server(s) to discover and create prototype items
