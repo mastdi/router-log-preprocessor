@@ -11,10 +11,7 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-import json
-
 import anyio
-import pyzabbix
 
 import asus_router_logger.domain as domain
 import asus_router_logger.hooks.abc as abc
@@ -92,19 +89,11 @@ class ZabbixTrapper(abc.Hook):
         # Mark client as known
         self._known_clients.add_client(record.process, message.mac_address)
 
-        value = json.dumps(
-            [{"mac": str(mac)} for mac in self._known_clients.clients(record.process)]
-        )
-        metric = pyzabbix.ZabbixMetric(
-            host=record.hostname,
-            key=f"rlp.client_discovery[{record.process.lower()}]",
-            value=value,
-            clock=int(record.timestamp.timestamp()),
-        )
+        measurements = mapper.map_client_discovery(record, self._known_clients)
         # py-zabbix does not support async communication, so for now we utilize anyio
         # to overcome this.
-        logging.logger.info("Discovering: %r", metric)
-        response = await anyio.to_thread.run_sync(self._sender.send, [metric])
+        logging.logger.info("Discovering: %r", measurements)
+        response = await anyio.to_thread.run_sync(self._sender.send, measurements)
         logging.logger.info("Response: %r", response)
         assert response.processed == 1, response
         return self._wait_time
