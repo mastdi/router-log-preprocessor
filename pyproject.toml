@@ -18,6 +18,7 @@ py-zabbix = "^1.1.7"
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.0.2"
 pytest = "^7.2.1"
+pytest-cov = "^4.0.0"
 
 [tool.mypy]
 plugins = [
