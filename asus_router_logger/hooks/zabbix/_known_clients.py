@@ -19,8 +19,8 @@ import asus_router_logger.domain as domain
 
 
 class KnownClients:
-    def __init__(self, total_wait_time: float) -> None:
-        self._total_wait_time = total_wait_time
+    def __init__(self, client_discovery_wait_time: float) -> None:
+        self._total_wait_time = client_discovery_wait_time
         self._known_clients: typing.DefaultDict[
             str, typing.Dict[domain.MAC, datetime.datetime]
         ] = collections.defaultdict(dict)

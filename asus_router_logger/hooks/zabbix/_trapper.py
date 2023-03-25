@@ -21,11 +21,11 @@ import asus_router_logger.util.logging as logging
 
 
 class ZabbixTrapper(abc.Hook):
-    def __init__(self, sender, default_wait_time=60):
+    def __init__(self, sender, client_discovery_wait_time=60):
         super().__init__()
         self._sender = sender
-        self._wait_time = default_wait_time
-        self._known_clients = known_clients.KnownClients(default_wait_time)
+        self._client_discovery_wait_time = client_discovery_wait_time
+        self._known_clients = known_clients.KnownClients(client_discovery_wait_time)
 
     async def send(self, record: domain.LogRecord, message: domain.Message) -> None:
         """Send the preprocessed message to the corresponding Zabbix Trapper item(s).
@@ -96,4 +96,4 @@ class ZabbixTrapper(abc.Hook):
         response = await anyio.to_thread.run_sync(self._sender.send, measurements)
         logging.logger.info("Response: %r", response)
         assert response.processed == 1, response
-        return self._wait_time
+        return self._client_discovery_wait_time
