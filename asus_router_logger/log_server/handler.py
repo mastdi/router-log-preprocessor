@@ -14,17 +14,21 @@
 import typing
 
 import asus_router_logger.domain as domain
-import asus_router_logger.hooks.zabbix
-import asus_router_logger.preprocessors.dnsmasq_dhcp as dnsmasq_dhcp_preprocessor
-import asus_router_logger.preprocessors.wlc as wlc_preprocessor
+import asus_router_logger.hooks.abc
+import asus_router_logger.preprocessors.typing as preprocessors_typing
 import asus_router_logger.settings
 import asus_router_logger.util.logging as logging
 import asus_router_logger.util.rfc3164_parser
 
 
 class LogHandler:
-    def __init__(self, zabbix_trapper: asus_router_logger.hooks.zabbix.ZabbixTrapper):
-        self.zabbix_trapper = zabbix_trapper
+    def __init__(
+        self,
+        preprocessors: typing.Mapping[str, preprocessors_typing.Preprocessor],
+        hooks: typing.Sequence[asus_router_logger.hooks.abc.Hook],
+    ):
+        self._preprocessors = preprocessors
+        self._hooks = hooks
         logging.logger.info("Log handler is ready")
 
     async def handle(self, packet: bytes, host: str, port: int) -> None:
@@ -36,15 +40,13 @@ class LogHandler:
         record = asus_router_logger.util.rfc3164_parser.parse(entry)
 
         # Pre-process the record
-        message: typing.Optional[domain.Message]
-        if record.process == "wlceventd":
-            message = wlc_preprocessor.preprocess_wireless_lan_controller_event(record)
-        elif record.process == "dnsmasq-dhcp":
-            message = dnsmasq_dhcp_preprocessor.preprocess_dnsmasq_dhcp_event(record)
-        else:
-            # Only preprocessors for logs with a named process is supported
-            return
+        preprocessor: typing.Optional[preprocessors_typing.Preprocessor] = None
+        message: typing.Optional[domain.Message] = None
+        if record.process is not None:
+            preprocessor = self._preprocessors.get(record.process)
+        if preprocessor is not None:
+            message = preprocessor(record)
 
-        # Act if needed
-        if message is not None:
-            await self.zabbix_trapper.send(record, message)
+        # Act
+        for hook in self._hooks:
+            await hook.send(record, message)

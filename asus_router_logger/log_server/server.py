@@ -16,6 +16,8 @@ from anyio import create_task_group, create_udp_socket
 
 import asus_router_logger.hooks.zabbix
 import asus_router_logger.log_server.handler
+import asus_router_logger.preprocessors.dnsmasq_dhcp as preprocessors_dnsmasq_dhcp
+import asus_router_logger.preprocessors.wlc as preprocessors_wlc
 import asus_router_logger.settings
 import asus_router_logger.util.logging as logging
 import asus_router_logger.util.rfc3164_parser
@@ -26,13 +28,21 @@ def log_handler_factory() -> asus_router_logger.log_server.handler.LogHandler:
 
     :return: Instantiated log handler.
     """
+    # Set up preprocessors
+    preprocessors = {
+        "wlceventd": preprocessors_wlc.preprocess_wireless_lan_controller_event,
+        "dnsmasq-dhcp": preprocessors_dnsmasq_dhcp.preprocess_dnsmasq_dhcp_event,
+    }
+    # Set up hooks
     settings = asus_router_logger.settings.settings()
     zabbix_servers = settings.zabbix_servers
     sender = pyzabbix.ZabbixSender(
         zabbix_server=zabbix_servers[0][0], zabbix_port=zabbix_servers[0][1]
     )
     zabbix_trapper = asus_router_logger.hooks.zabbix.ZabbixTrapper(sender)
-    return asus_router_logger.log_server.handler.LogHandler(zabbix_trapper)
+    hooks = [zabbix_trapper]
+
+    return asus_router_logger.log_server.handler.LogHandler(preprocessors, hooks)
 
 
 async def start_log_server() -> None:

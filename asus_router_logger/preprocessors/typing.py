@@ -11,19 +11,8 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-import abc
 import typing
 
 import asus_router_logger.domain as domain
 
-
-class Hook(abc.ABC):
-    async def send(
-        self, record: domain.LogRecord, message: typing.Optional[domain.Message]
-    ) -> None:
-        """Send the log record and preprocessed message using the hook.
-
-        :param record: The parsed log record.
-        :param message: The preprocessed log message.
-        """
-        raise NotImplementedError()
+Preprocessor = typing.Callable[[domain.LogRecord], typing.Optional[domain.Message]]
