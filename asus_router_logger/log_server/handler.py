@@ -24,7 +24,7 @@ import asus_router_logger.util.rfc3164_parser
 class LogHandler:
     def __init__(
         self,
-        preprocessors: typing.Dict[str, preprocessors_typing.Preprocessor],
+        preprocessors: typing.Mapping[str, preprocessors_typing.Preprocessor],
         zabbix_trapper: asus_router_logger.hooks.zabbix.ZabbixTrapper,
     ):
         self.zabbix_trapper = zabbix_trapper
