@@ -15,6 +15,8 @@ import unittest.mock
 
 import pytest
 
+import asus_router_logger.preprocessors.dnsmasq_dhcp as dnsmasq_dhcp
+import asus_router_logger.preprocessors.wlc as wlc
 from asus_router_logger.log_server.handler import LogHandler
 
 
@@ -35,15 +37,22 @@ def mock_zabbix_trapper():
 
 @pytest.fixture
 def log_handler(mock_zabbix_trapper):
-    return LogHandler(mock_zabbix_trapper)
+
+    return LogHandler(
+        {
+            "wlceventd": wlc.preprocess_wireless_lan_controller_event,
+            "dnsmasq-dhcp": dnsmasq_dhcp.preprocess_dnsmasq_dhcp_event,
+        },
+        mock_zabbix_trapper,
+    )
 
 
 def test_log_handler_init(mock_zabbix_trapper):
-    handler = LogHandler(mock_zabbix_trapper)
+    handler = LogHandler({}, mock_zabbix_trapper)
     assert handler.zabbix_trapper == mock_zabbix_trapper
 
 
-async def test_log_handler_handle_wlc(mock_zabbix_trapper):
+async def test_log_handler_handle_wlc(mock_zabbix_trapper, log_handler):
     packet = (
         b"<6>Oct 18 14:02:56 GT-AX11000-ABCD-1234567-E wlceventd: "
         b"wlceventd_proc_event(431): eth1: Auth ab:cd:ef:01:23:45, "
@@ -51,34 +60,31 @@ async def test_log_handler_handle_wlc(mock_zabbix_trapper):
     )
     host = "127.0.0.1"
     port = 514
-    log_handler = LogHandler(mock_zabbix_trapper)
 
     await log_handler.handle(packet, host, port)
 
     mock_zabbix_trapper.send.assert_called_once()
 
 
-async def test_log_handler_handle_dnsmasq(mock_zabbix_trapper):
+async def test_log_handler_handle_dnsmasq(mock_zabbix_trapper, log_handler):
     packet = (
         b"<6>Feb  2 13:02:51 GT-AX11000-ABCD-1234567-E dnsmasq-dhcp[2971]: "
         b"DHCPACK(br1) 192.168.101.149 ab:cd:ef:01:23:45 fake-client"
     )
     host = "127.0.0.1"
     port = 514
-    log_handler = LogHandler(mock_zabbix_trapper)
 
     await log_handler.handle(packet, host, port)
 
     mock_zabbix_trapper.send.assert_called_once()
 
 
-async def test_log_handler_handle_unknown(mock_zabbix_trapper):
+async def test_log_handler_handle_unknown(mock_zabbix_trapper, log_handler):
     packet = (
         b"<6>Oct 18 14:02:56 GT-AX11000-ABCD-1234567-E unknown_process: Some message"
     )
     host = "127.0.0.1"
     port = 514
-    log_handler = LogHandler(mock_zabbix_trapper)
 
     await log_handler.handle(packet, host, port)
 
