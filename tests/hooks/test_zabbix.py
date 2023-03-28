@@ -167,3 +167,22 @@ async def test_send_known_client():
     mocked_discover_client.assert_called()
     mocked_sleep.assert_not_called()
     sender.send.assert_called_once()
+
+
+async def test_send_message_none():
+    response = pyzabbix.ZabbixResponse()
+    response._processed = 1
+    sender = unittest.mock.MagicMock()
+    sender.send = unittest.mock.MagicMock(return_value=response)
+    sender.send = unittest.mock.MagicMock(return_value=response)
+    with unittest.mock.patch.object(
+        asus_router_logger.hooks.zabbix.ZabbixTrapper, "discover_client", return_value=0
+    ) as mocked_discover_client:
+        zabbix_trapper = asus_router_logger.hooks.zabbix.ZabbixTrapper(
+            sender=sender, client_discovery_wait_time=30
+        )
+
+    await zabbix_trapper.send(_RECORD, None)
+
+    mocked_discover_client.assert_not_called()
+    sender.send.assert_not_called()

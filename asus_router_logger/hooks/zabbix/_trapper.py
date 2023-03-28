@@ -11,6 +11,8 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+import typing
+
 import anyio
 
 import asus_router_logger.domain as domain
@@ -27,16 +29,22 @@ class ZabbixTrapper(abc.Hook):
         self._client_discovery_wait_time = client_discovery_wait_time
         self._known_clients = known_clients.KnownClients(client_discovery_wait_time)
 
-    async def send(self, record: domain.LogRecord, message: domain.Message) -> None:
+    async def send(
+        self, record: domain.LogRecord, message: typing.Optional[domain.Message]
+    ) -> None:
         """Send the preprocessed message to the corresponding Zabbix Trapper item(s).
 
         For client messages a low-level discovery will be sent first and the
         corresponding Zabbix Trapper item(s) will be delayed until Zabbix have been
         given time to synchronize caches.
 
+        If the message is None, then this method returns immediately.
+
         :param record: The log record containing hostname, process name and timestamp.
         :param message: The message containing the mac address.
         """
+        if message is None:
+            return
         seconds_until_discovered = await self.discover_client(record, message)
         if seconds_until_discovered > 0:
             # Allow the Zabbix server(s) to discover and create prototype items
