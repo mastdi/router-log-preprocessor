@@ -11,7 +11,7 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-import unittest
+import unittest.mock
 
 import pytest
 
@@ -52,7 +52,9 @@ async def test_log_handler_handle_wlc(mock_zabbix_trapper):
     host = "127.0.0.1"
     port = 514
     log_handler = LogHandler(mock_zabbix_trapper)
+
     await log_handler.handle(packet, host, port)
+
     mock_zabbix_trapper.send.assert_called_once()
 
 
@@ -64,7 +66,9 @@ async def test_log_handler_handle_dnsmasq(mock_zabbix_trapper):
     host = "127.0.0.1"
     port = 514
     log_handler = LogHandler(mock_zabbix_trapper)
+
     await log_handler.handle(packet, host, port)
+
     mock_zabbix_trapper.send.assert_called_once()
 
 
@@ -75,5 +79,7 @@ async def test_log_handler_handle_unknown(mock_zabbix_trapper):
     host = "127.0.0.1"
     port = 514
     log_handler = LogHandler(mock_zabbix_trapper)
+
     await log_handler.handle(packet, host, port)
+
     mock_zabbix_trapper.send.assert_not_called()
