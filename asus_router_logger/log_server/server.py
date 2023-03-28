@@ -40,10 +40,9 @@ def log_handler_factory() -> asus_router_logger.log_server.handler.LogHandler:
         zabbix_server=zabbix_servers[0][0], zabbix_port=zabbix_servers[0][1]
     )
     zabbix_trapper = asus_router_logger.hooks.zabbix.ZabbixTrapper(sender)
+    hooks = [zabbix_trapper]
 
-    return asus_router_logger.log_server.handler.LogHandler(
-        preprocessors, zabbix_trapper
-    )
+    return asus_router_logger.log_server.handler.LogHandler(preprocessors, hooks)
 
 
 async def start_log_server() -> None:

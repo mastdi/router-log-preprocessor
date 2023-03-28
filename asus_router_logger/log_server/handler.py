@@ -14,7 +14,7 @@
 import typing
 
 import asus_router_logger.domain as domain
-import asus_router_logger.hooks.zabbix
+import asus_router_logger.hooks.abc
 import asus_router_logger.preprocessors.typing as preprocessors_typing
 import asus_router_logger.settings
 import asus_router_logger.util.logging as logging
@@ -25,10 +25,10 @@ class LogHandler:
     def __init__(
         self,
         preprocessors: typing.Mapping[str, preprocessors_typing.Preprocessor],
-        zabbix_trapper: asus_router_logger.hooks.zabbix.ZabbixTrapper,
+        hooks: typing.Sequence[asus_router_logger.hooks.abc.Hook],
     ):
-        self.zabbix_trapper = zabbix_trapper
         self._preprocessors = preprocessors
+        self._hooks = hooks
         logging.logger.info("Log handler is ready")
 
     async def handle(self, packet: bytes, host: str, port: int) -> None:
@@ -48,4 +48,5 @@ class LogHandler:
             message = preprocessor(record)
 
         # Act
-        await self.zabbix_trapper.send(record, message)
+        for hook in self._hooks:
+            await hook.send(record, message)

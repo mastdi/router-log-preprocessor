@@ -43,13 +43,8 @@ def log_handler(mock_zabbix_trapper):
             "wlceventd": wlc.preprocess_wireless_lan_controller_event,
             "dnsmasq-dhcp": dnsmasq_dhcp.preprocess_dnsmasq_dhcp_event,
         },
-        mock_zabbix_trapper,
+        [mock_zabbix_trapper],
     )
-
-
-def test_log_handler_init(mock_zabbix_trapper):
-    handler = LogHandler({}, mock_zabbix_trapper)
-    assert handler.zabbix_trapper == mock_zabbix_trapper
 
 
 async def test_log_handler_handle_wlc(mock_zabbix_trapper, log_handler):
