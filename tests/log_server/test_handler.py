@@ -88,4 +88,16 @@ async def test_log_handler_handle_unknown(mock_zabbix_trapper, log_handler):
 
     await log_handler.handle(packet, host, port)
 
-    mock_zabbix_trapper.send.assert_not_called()
+    args = mock_zabbix_trapper.send.call_args[0]
+    kwargs = mock_zabbix_trapper.send.call_args[1]
+    if "message" in kwargs:
+        assert kwargs["message"] is None
+    elif len(args) == 2:
+        # send was called with args and not kwargs and message is the last positional
+        # argument
+        assert args[1] is None
+    else:
+        assert False, (
+            "This test must check that the ZabbixTrapper.send have been "
+            "called at with a None message."
+        )

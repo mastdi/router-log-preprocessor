@@ -47,6 +47,5 @@ class LogHandler:
         if preprocessor is not None:
             message = preprocessor(record)
 
-        # Act if needed
-        if message is not None:
-            await self.zabbix_trapper.send(record, message)
+        # Act
+        await self.zabbix_trapper.send(record, message)
