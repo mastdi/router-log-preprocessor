@@ -18,6 +18,7 @@ import asus_router_logger.domain as domain
 
 
 class Hook(abc.ABC):
+    @abc.abstractmethod
     async def send(
         self, record: domain.LogRecord, message: typing.Optional[domain.Message]
     ) -> None:
@@ -26,4 +27,3 @@ class Hook(abc.ABC):
         :param record: The parsed log record.
         :param message: The preprocessed log message.
         """
-        raise NotImplementedError()
