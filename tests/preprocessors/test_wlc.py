@@ -82,3 +82,26 @@ def test_disassociated_message(
     assert model.status == 0
     assert model.event == expected_wlc_event
     assert model.rssi == expected_rssi
+
+
+@pytest.mark.parametrize(
+    ("event", "expected_wlc_event"),
+    (
+        ("DisAssoc", domain.WlcEvent.DISASSOCIATION),
+        ("Deauth_ind", domain.WlcEvent.DEAUTH_IND),
+        ("Auth", domain.WlcEvent.AUTHENTICATE),
+        ("assoc", domain.WlcEvent.ASSOCIATION),
+        ("ReAssoc", domain.WlcEvent.REASSOCIATION),
+    ),
+)
+def test_wlc_event_from_event(event: str, expected_wlc_event: domain.WlcEvent):
+    wlc_event = domain.WlcEvent.from_event(event)
+
+    assert wlc_event == expected_wlc_event
+
+
+def test_wlc_event_from_unknown_event():
+    with pytest.raises(ValueError) as exception_info:
+        domain.WlcEvent.from_event("jump")
+
+    assert exception_info.value.args[0] == "Unknown event"

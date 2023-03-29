@@ -11,19 +11,16 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-import abc
-import typing
-
-import asus_router_logger.domain as domain
+import asus_router_logger.settings
 
 
-class Hook(abc.ABC):
-    @abc.abstractmethod
-    async def send(
-        self, record: domain.LogRecord, message: typing.Optional[domain.Message]
-    ) -> None:
-        """Send the log record and preprocessed message using the hook.
+def test_zabbix_servers_property():
+    settings = asus_router_logger.settings.Settings(
+        zabbix_addresses="localhost:8010,example.org"
+    )
 
-        :param record: The parsed log record.
-        :param message: The preprocessed log message.
-        """
+    servers = settings.zabbix_servers
+
+    assert len(servers) == 2
+    assert servers[0] == ("localhost", 8010)
+    assert servers[1] == ("example.org", 10051)

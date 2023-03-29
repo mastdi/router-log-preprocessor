@@ -134,3 +134,8 @@ def test_parse(message, expected_record):
     record = asus_router_logger.util.rfc3164_parser.parse(message)
 
     assert record == expected_record
+
+
+def test_bad_formatted_log_entry():
+    with pytest.raises(RuntimeError):
+        asus_router_logger.util.rfc3164_parser.parse("Hello world")
