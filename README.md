@@ -1,4 +1,6 @@
 # Router Log Preprocessor
+![router-log-preprocessor](https://user-images.githubusercontent.com/105678820/228938795-66dbd955-813b-4fb3-a559-4f3a41f55bb9.png)
+
 > Garbage in, garbage out
 >
 > &mdash; <cite>George Fuechsel</cite>
