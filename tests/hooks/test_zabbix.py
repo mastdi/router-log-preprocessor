@@ -17,9 +17,9 @@ import unittest.mock
 import pytest
 import pyzabbix
 
-import asus_router_logger.domain
-import asus_router_logger.hooks.zabbix
-import asus_router_logger.util.rfc3164_parser
+import router_log_preprocessor.domain
+import router_log_preprocessor.hooks.zabbix
+import router_log_preprocessor.util.rfc3164_parser
 
 
 @pytest.fixture
@@ -39,10 +39,10 @@ def zabbix_sender():
 # All test functions in this module should be tested using anyio
 pytestmark = pytest.mark.anyio
 
-_RECORD = asus_router_logger.domain.LogRecord(
+_RECORD = router_log_preprocessor.domain.LogRecord(
     facility=1,
     severity=5,
-    timestamp=asus_router_logger.util.rfc3164_parser.timestamp_to_datetime(
+    timestamp=router_log_preprocessor.util.rfc3164_parser.timestamp_to_datetime(
         "Feb", "2", "13", "02", "51"
     ),
     hostname="GT-AX11000-ABCD-1234567-E",
@@ -51,11 +51,11 @@ _RECORD = asus_router_logger.domain.LogRecord(
     message="Not relevant for testing",
 )
 
-_MESSAGE = asus_router_logger.domain.WlcEventModel(
+_MESSAGE = router_log_preprocessor.domain.WlcEventModel(
     location="wl0.1",
-    mac_address=asus_router_logger.domain.MAC("AB:CD:EF:01:23:45"),
+    mac_address=router_log_preprocessor.domain.MAC("AB:CD:EF:01:23:45"),
     status=0,
-    event=asus_router_logger.domain.WlcEvent.DEAUTH_IND,
+    event=router_log_preprocessor.domain.WlcEvent.DEAUTH_IND,
     rssi=0,
     reason="N/A",
 )
@@ -72,7 +72,7 @@ class MockedDatetime(datetime.datetime):
 
 
 async def test_discover_client_not_known(zabbix_sender):
-    zabbix_trapper = asus_router_logger.hooks.zabbix.ZabbixTrapper(
+    zabbix_trapper = router_log_preprocessor.hooks.zabbix.ZabbixTrapper(
         sender=zabbix_sender, client_discovery_wait_time=30
     )
 
@@ -83,7 +83,7 @@ async def test_discover_client_not_known(zabbix_sender):
 
 
 async def test_discover_client_just_known(zabbix_sender):
-    zabbix_trapper = asus_router_logger.hooks.zabbix.ZabbixTrapper(
+    zabbix_trapper = router_log_preprocessor.hooks.zabbix.ZabbixTrapper(
         sender=zabbix_sender, client_discovery_wait_time=30
     )
     original_datetime = datetime.datetime
@@ -105,7 +105,7 @@ async def test_discover_client_just_known(zabbix_sender):
 
 
 async def test_discover_client_known_and_discovered(zabbix_sender):
-    zabbix_trapper = asus_router_logger.hooks.zabbix.ZabbixTrapper(
+    zabbix_trapper = router_log_preprocessor.hooks.zabbix.ZabbixTrapper(
         sender=zabbix_sender, client_discovery_wait_time=30
     )
     original_datetime = datetime.datetime
@@ -129,11 +129,11 @@ async def test_discover_client_known_and_discovered(zabbix_sender):
 async def test_send_new_client(zabbix_sender):
     total_wait_time = 42
     with unittest.mock.patch.object(
-        asus_router_logger.hooks.zabbix.ZabbixTrapper,
+        router_log_preprocessor.hooks.zabbix.ZabbixTrapper,
         "discover_client",
         return_value=total_wait_time,
     ) as mocked_discover_client:
-        trapper = asus_router_logger.hooks.zabbix.ZabbixTrapper(
+        trapper = router_log_preprocessor.hooks.zabbix.ZabbixTrapper(
             zabbix_sender, total_wait_time
         )
 
@@ -148,9 +148,11 @@ async def test_send_new_client(zabbix_sender):
 
 async def test_send_known_client(zabbix_sender):
     with unittest.mock.patch.object(
-        asus_router_logger.hooks.zabbix.ZabbixTrapper, "discover_client", return_value=0
+        router_log_preprocessor.hooks.zabbix.ZabbixTrapper,
+        "discover_client",
+        return_value=0,
     ) as mocked_discover_client:
-        trapper = asus_router_logger.hooks.zabbix.ZabbixTrapper(zabbix_sender, 42)
+        trapper = router_log_preprocessor.hooks.zabbix.ZabbixTrapper(zabbix_sender, 42)
 
         with unittest.mock.patch("anyio.sleep") as mocked_sleep:
             await trapper.send(_RECORD, _MESSAGE)
@@ -162,9 +164,11 @@ async def test_send_known_client(zabbix_sender):
 
 async def test_send_message_none(zabbix_sender):
     with unittest.mock.patch.object(
-        asus_router_logger.hooks.zabbix.ZabbixTrapper, "discover_client", return_value=0
+        router_log_preprocessor.hooks.zabbix.ZabbixTrapper,
+        "discover_client",
+        return_value=0,
     ) as mocked_discover_client:
-        zabbix_trapper = asus_router_logger.hooks.zabbix.ZabbixTrapper(
+        zabbix_trapper = router_log_preprocessor.hooks.zabbix.ZabbixTrapper(
             sender=zabbix_sender, client_discovery_wait_time=30
         )
 

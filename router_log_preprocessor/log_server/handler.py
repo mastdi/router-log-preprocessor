@@ -13,19 +13,19 @@
 #  limitations under the License.
 import typing
 
-import asus_router_logger.domain as domain
-import asus_router_logger.hooks.abc
-import asus_router_logger.preprocessors.typing as preprocessors_typing
-import asus_router_logger.settings
-import asus_router_logger.util.logging as logging
-import asus_router_logger.util.rfc3164_parser
+import router_log_preprocessor.domain as domain
+import router_log_preprocessor.hooks.abc
+import router_log_preprocessor.preprocessors.typing as preprocessors_typing
+import router_log_preprocessor.settings
+import router_log_preprocessor.util.logging as logging
+import router_log_preprocessor.util.rfc3164_parser
 
 
 class LogHandler:
     def __init__(
         self,
         preprocessors: typing.Mapping[str, preprocessors_typing.Preprocessor],
-        hooks: typing.Sequence[asus_router_logger.hooks.abc.Hook],
+        hooks: typing.Sequence[router_log_preprocessor.hooks.abc.Hook],
     ):
         self._preprocessors = preprocessors
         self._hooks = hooks
@@ -37,7 +37,7 @@ class LogHandler:
         logging.echo_logger.debug(entry.strip())
 
         # Parse the log record
-        record = asus_router_logger.util.rfc3164_parser.parse(entry)
+        record = router_log_preprocessor.util.rfc3164_parser.parse(entry)
 
         # Pre-process the record
         preprocessor: typing.Optional[preprocessors_typing.Preprocessor] = None

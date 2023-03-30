@@ -11,16 +11,6 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-from asus_router_logger.domain._dnsmasq_dhcp import DnsmasqDhcpAcknowledge
-from asus_router_logger.domain._message import MAC, Message
-from asus_router_logger.domain._wlc import WlcEvent, WlcEventModel
-from asus_router_logger.util.rfc3164_parser import LogRecord
+from router_log_preprocessor.hooks.zabbix._trapper import ZabbixTrapper
 
-__all__ = [
-    "Message",
-    "MAC",
-    "WlcEventModel",
-    "WlcEvent",
-    "LogRecord",
-    "DnsmasqDhcpAcknowledge",
-]
+__all__ = ["ZabbixTrapper"]

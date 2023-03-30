@@ -15,9 +15,9 @@ import unittest.mock
 
 import pytest
 
-import asus_router_logger.settings
+import router_log_preprocessor.settings
 import tests.mocks.anyio
-from asus_router_logger.log_server.server import start_log_server
+from router_log_preprocessor.log_server.server import start_log_server
 
 
 @pytest.fixture
@@ -27,7 +27,7 @@ def anyio_backend():
 
 @pytest.mark.anyio
 async def test_server():
-    settings = asus_router_logger.settings.settings()
+    settings = router_log_preprocessor.settings.settings()
     (
         mock_udp_socket,
         mock_create_udp_socket,
@@ -43,10 +43,11 @@ async def test_server():
     ) = tests.mocks.anyio.mock_create_task_group_factory()
 
     with unittest.mock.patch(
-        "asus_router_logger.log_server.server.create_udp_socket", mock_create_udp_socket
+        "router_log_preprocessor.log_server.server.create_udp_socket",
+        mock_create_udp_socket,
     ):
         with unittest.mock.patch(
-            "asus_router_logger.log_server.server.create_task_group",
+            "router_log_preprocessor.log_server.server.create_task_group",
             mock_task_group_context,
         ):
 

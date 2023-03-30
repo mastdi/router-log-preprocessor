@@ -15,15 +15,15 @@ import typing
 
 import pyzabbix
 
-import asus_router_logger.domain
-import asus_router_logger.hooks.zabbix._known_clients as _known_clients
-import asus_router_logger.hooks.zabbix._mapper as mapper
-import asus_router_logger.util.rfc3164_parser
+import router_log_preprocessor.domain
+import router_log_preprocessor.hooks.zabbix._known_clients as _known_clients
+import router_log_preprocessor.hooks.zabbix._mapper as mapper
+import router_log_preprocessor.util.rfc3164_parser
 
-_RECORD = asus_router_logger.domain.LogRecord(
+_RECORD = router_log_preprocessor.domain.LogRecord(
     facility=1,
     severity=5,
-    timestamp=asus_router_logger.util.rfc3164_parser.timestamp_to_datetime(
+    timestamp=router_log_preprocessor.util.rfc3164_parser.timestamp_to_datetime(
         "Feb", "2", "13", "02", "51"
     ),
     hostname="GT-AX11000-ABCD-1234567-E",
@@ -32,11 +32,11 @@ _RECORD = asus_router_logger.domain.LogRecord(
     message="Not relevant for testing",
 )
 
-_MESSAGE = asus_router_logger.domain.WlcEventModel(
+_MESSAGE = router_log_preprocessor.domain.WlcEventModel(
     location="wl0.1",
-    mac_address=asus_router_logger.domain.MAC("AB:CD:EF:01:23:45"),
+    mac_address=router_log_preprocessor.domain.MAC("AB:CD:EF:01:23:45"),
     status=0,
-    event=asus_router_logger.domain.WlcEvent.DEAUTH_IND,
+    event=router_log_preprocessor.domain.WlcEvent.DEAUTH_IND,
     rssi=0,
     reason="N/A",
 )

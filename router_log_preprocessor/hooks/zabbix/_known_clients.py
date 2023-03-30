@@ -15,7 +15,7 @@ import collections
 import datetime
 import typing
 
-import asus_router_logger.domain as domain
+import router_log_preprocessor.domain as domain
 
 
 class KnownClients:

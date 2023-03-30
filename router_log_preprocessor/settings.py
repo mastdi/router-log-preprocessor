@@ -33,7 +33,7 @@ class Settings(BaseSettings):
         "(not supported on Windows)",
     )
     logging_name_base: str = Field(
-        default="arl",
+        default="rlp",
         description="The base name of the logger used internally. "
         "<logging_name_base>.echo is used to log the logs received.",
     )

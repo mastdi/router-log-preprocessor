@@ -11,12 +11,19 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-import pydantic.dataclasses
+import abc
+import typing
 
-import asus_router_logger.domain._message as _message
+import router_log_preprocessor.domain as domain
 
 
-@pydantic.dataclasses.dataclass
-class DnsmasqDhcpAcknowledge(_message.Message):
-    ip_address: pydantic.IPvAnyAddress
-    hostname: str
+class Hook(abc.ABC):
+    @abc.abstractmethod
+    async def send(
+        self, record: domain.LogRecord, message: typing.Optional[domain.Message]
+    ) -> None:
+        """Send the log record and preprocessed message using the hook.
+
+        :param record: The parsed log record.
+        :param message: The preprocessed log message.
+        """

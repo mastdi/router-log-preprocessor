@@ -13,13 +13,13 @@
 #  limitations under the License.
 import logging
 
-import asus_router_logger.settings
+import router_log_preprocessor.settings
 
 __all__ = ["echo_logger", "logger"]
 
 
 def echo_logger_factory() -> logging.Logger:
-    settings = asus_router_logger.settings.settings()
+    settings = router_log_preprocessor.settings.settings()
     # Only log the actual message
     formatter = logging.Formatter(fmt="%(message)s")
 
@@ -38,7 +38,7 @@ def echo_logger_factory() -> logging.Logger:
 
 
 def logger_factory() -> logging.Logger:
-    settings = asus_router_logger.settings.settings()
+    settings = router_log_preprocessor.settings.settings()
     # Add metadata to the log message
     formatter = logging.Formatter(
         fmt="%(asctime)s - %(name)s - %(levelname)s - %(message)s"

@@ -15,7 +15,7 @@ import enum
 
 import pydantic.dataclasses
 
-from asus_router_logger.domain._message import Message
+from router_log_preprocessor.domain._message import Message
 
 
 class WlcEvent(enum.Enum):
