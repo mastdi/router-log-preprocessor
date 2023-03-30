@@ -14,8 +14,8 @@
 import re
 import typing
 
-import asus_router_logger.domain as domain
-import asus_router_logger.util.logging as logging
+import router_log_preprocessor.domain as domain
+import router_log_preprocessor.util.logging as logging
 
 _DHCP_ACK_PATTERN = re.compile(r"^(\S+)\s(\S+)\s(\S+)\s?(\S+)?$")
 

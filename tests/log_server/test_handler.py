@@ -15,9 +15,9 @@ import unittest.mock
 
 import pytest
 
-import asus_router_logger.preprocessors.dnsmasq_dhcp as dnsmasq_dhcp
-import asus_router_logger.preprocessors.wlc as wlc
-from asus_router_logger.log_server.handler import LogHandler
+import router_log_preprocessor.preprocessors.dnsmasq_dhcp as dnsmasq_dhcp
+import router_log_preprocessor.preprocessors.wlc as wlc
+from router_log_preprocessor.log_server.handler import LogHandler
 
 
 @pytest.fixture

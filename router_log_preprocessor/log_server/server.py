@@ -14,16 +14,16 @@
 import pyzabbix
 from anyio import create_task_group, create_udp_socket
 
-import asus_router_logger.hooks.zabbix
-import asus_router_logger.log_server.handler
-import asus_router_logger.preprocessors.dnsmasq_dhcp as preprocessors_dnsmasq_dhcp
-import asus_router_logger.preprocessors.wlc as preprocessors_wlc
-import asus_router_logger.settings
-import asus_router_logger.util.logging as logging
-import asus_router_logger.util.rfc3164_parser
+import router_log_preprocessor.hooks.zabbix
+import router_log_preprocessor.log_server.handler
+import router_log_preprocessor.preprocessors.dnsmasq_dhcp as preprocessors_dnsmasq_dhcp
+import router_log_preprocessor.preprocessors.wlc as preprocessors_wlc
+import router_log_preprocessor.settings
+import router_log_preprocessor.util.logging as logging
+import router_log_preprocessor.util.rfc3164_parser
 
 
-def log_handler_factory() -> asus_router_logger.log_server.handler.LogHandler:
+def log_handler_factory() -> router_log_preprocessor.log_server.handler.LogHandler:
     """Create the log handler used for preprocessing and sending measurements to hooks.
 
     :return: Instantiated log handler.
@@ -34,15 +34,15 @@ def log_handler_factory() -> asus_router_logger.log_server.handler.LogHandler:
         "dnsmasq-dhcp": preprocessors_dnsmasq_dhcp.preprocess_dnsmasq_dhcp_event,
     }
     # Set up hooks
-    settings = asus_router_logger.settings.settings()
+    settings = router_log_preprocessor.settings.settings()
     zabbix_servers = settings.zabbix_servers
     sender = pyzabbix.ZabbixSender(
         zabbix_server=zabbix_servers[0][0], zabbix_port=zabbix_servers[0][1]
     )
-    zabbix_trapper = asus_router_logger.hooks.zabbix.ZabbixTrapper(sender)
+    zabbix_trapper = router_log_preprocessor.hooks.zabbix.ZabbixTrapper(sender)
     hooks = [zabbix_trapper]
 
-    return asus_router_logger.log_server.handler.LogHandler(preprocessors, hooks)
+    return router_log_preprocessor.log_server.handler.LogHandler(preprocessors, hooks)
 
 
 async def start_log_server() -> None:
@@ -50,7 +50,7 @@ async def start_log_server() -> None:
 
     log_handler = log_handler_factory()
 
-    settings = asus_router_logger.settings.settings()
+    settings = router_log_preprocessor.settings.settings()
     async with await create_udp_socket(
         local_host=settings.log_server_host,
         local_port=settings.log_server_port,

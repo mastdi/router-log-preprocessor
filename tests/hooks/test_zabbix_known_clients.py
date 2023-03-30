@@ -15,8 +15,8 @@ import datetime
 
 import pytest
 
-import asus_router_logger.domain as domain
-import asus_router_logger.hooks.zabbix._known_clients as known_clients
+import router_log_preprocessor.domain as domain
+import router_log_preprocessor.hooks.zabbix._known_clients as known_clients
 
 
 def test_is_client_known():

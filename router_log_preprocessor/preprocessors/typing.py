@@ -11,6 +11,8 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-from asus_router_logger.hooks.zabbix._trapper import ZabbixTrapper
+import typing
 
-__all__ = ["ZabbixTrapper"]
+import router_log_preprocessor.domain as domain
+
+Preprocessor = typing.Callable[[domain.LogRecord], typing.Optional[domain.Message]]

@@ -15,11 +15,11 @@ import typing
 
 import anyio
 
-import asus_router_logger.domain as domain
-import asus_router_logger.hooks.abc as abc
-import asus_router_logger.hooks.zabbix._known_clients as known_clients
-import asus_router_logger.hooks.zabbix._mapper as mapper
-import asus_router_logger.util.logging as logging
+import router_log_preprocessor.domain as domain
+import router_log_preprocessor.hooks.abc as abc
+import router_log_preprocessor.hooks.zabbix._known_clients as known_clients
+import router_log_preprocessor.hooks.zabbix._mapper as mapper
+import router_log_preprocessor.util.logging as logging
 
 
 class ZabbixTrapper(abc.Hook):

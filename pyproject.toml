@@ -1,12 +1,12 @@
 [tool.poetry]
-name = "asus-router-logger"
+name = "router-log-preprocessor"
 version = "0.1.0"
 description = ""
-repository = "https://github.com/mastdi/asus-router-logger"
+repository = "https://github.com/mastdi/router-log-preprocessor"
 authors = ["Martin Storgaard Dieu <martin@storgaarddieu.com>"]
 license = "Apache-2.0"
 readme = "README.md"
-packages = [{include = "asus_router_logger"}]
+packages = [{include = "router_log_preprocessor"}]
 
 [tool.poetry.dependencies]
 python = "^3.8"
@@ -26,7 +26,7 @@ plugins = [
 ]
 
 [tool.poetry.scripts]
-asus-router-logger = "asus_router_logger.__main__:main"
+router-log-preprocessor = "router_log_preprocessor.__main__:main"
 
 [build-system]
 requires = ["poetry-core"]

@@ -13,13 +13,15 @@
 #  limitations under the License.
 import unittest.mock
 
-import asus_router_logger.__main__
-import asus_router_logger.log_server.server
+import router_log_preprocessor.__main__
+import router_log_preprocessor.log_server.server
 
 
 def test_main():
     with unittest.mock.patch("anyio.run", unittest.mock.MagicMock()) as runner:
-        asus_router_logger.__main__.main()
+        router_log_preprocessor.__main__.main()
 
     # Test that the main method starts the log server
-    runner.assert_called_with(asus_router_logger.log_server.server.start_log_server)
+    runner.assert_called_with(
+        router_log_preprocessor.log_server.server.start_log_server
+    )

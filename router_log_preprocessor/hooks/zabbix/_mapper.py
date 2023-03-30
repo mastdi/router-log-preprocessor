@@ -18,8 +18,8 @@ import typing
 
 import pyzabbix
 
-import asus_router_logger.domain as domain
-import asus_router_logger.hooks.zabbix._known_clients as _known_clients
+import router_log_preprocessor.domain as domain
+import router_log_preprocessor.hooks.zabbix._known_clients as _known_clients
 
 
 def map_client_message(

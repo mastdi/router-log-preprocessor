@@ -11,11 +11,11 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-import asus_router_logger.settings
+import router_log_preprocessor.settings
 
 
 def test_zabbix_servers_property():
-    settings = asus_router_logger.settings.Settings(
+    settings = router_log_preprocessor.settings.Settings(
         zabbix_addresses="localhost:8010,example.org"
     )
 

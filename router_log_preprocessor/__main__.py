@@ -11,8 +11,12 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-import typing
+import anyio
 
-import asus_router_logger.domain as domain
+import router_log_preprocessor.log_server.server
+import router_log_preprocessor.settings
 
-Preprocessor = typing.Callable[[domain.LogRecord], typing.Optional[domain.Message]]
+
+def main() -> None:
+    """Main entry point of the Router Log Preprocessor (RLP)"""
+    anyio.run(router_log_preprocessor.log_server.server.start_log_server)
