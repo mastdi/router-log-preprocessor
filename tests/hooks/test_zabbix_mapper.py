@@ -11,9 +11,7 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-import typing
-
-import pyzabbix
+import asyncio_zabbix_sender
 
 import router_log_preprocessor.domain
 import router_log_preprocessor.hooks.zabbix._known_clients as _known_clients
@@ -43,11 +41,11 @@ _MESSAGE = router_log_preprocessor.domain.WlcEventModel(
 
 
 def _get_value(
-    measurements: typing.List[pyzabbix.ZabbixMetric], field_name: str
+    measurements: asyncio_zabbix_sender.Measurements, field_name: str
 ) -> str:
     return next(
         measurement
-        for measurement in measurements
+        for measurement in measurements._measurements
         if field_name in measurement.key.split("[")[1]
     ).value
 
@@ -55,12 +53,12 @@ def _get_value(
 def test_map_client_message():
     measurements = mapper.map_client_message(_RECORD, _MESSAGE)
 
-    assert len(measurements) == 5
+    assert len(measurements._measurements) == 5
     assert all(
         measurement.clock == int(_RECORD.timestamp.timestamp())
-        for measurement in measurements
+        for measurement in measurements._measurements
     )
-    assert all(measurement.host == _RECORD.hostname for measurement in measurements)
+    assert all(measurement.host == _RECORD.hostname for measurement in measurements._measurements)
     assert _get_value(measurements, "location") == _MESSAGE.location
     assert int(_get_value(measurements, "status")) == _MESSAGE.status
     assert int(_get_value(measurements, "event")) == _MESSAGE.event.value
@@ -74,8 +72,8 @@ def test_map_client_discovery():
 
     measurements = mapper.map_client_discovery(_RECORD, known_clients)
 
-    assert len(measurements) == 1
-    measurement = measurements[0]
+    assert len(measurements._measurements) == 1
+    measurement = measurements._measurements[0]
     assert measurement.clock == int(_RECORD.timestamp.timestamp())
     assert measurement.host == _RECORD.hostname
     assert measurement.value == '[{"mac":"' + str(_MESSAGE.mac_address) + '"}]'

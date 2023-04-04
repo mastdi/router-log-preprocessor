@@ -22,6 +22,18 @@ test = ["contextlib2", "coverage[toml] (>=4.5)", "hypothesis (>=4.0)", "mock (>=
 trio = ["trio (>=0.16,<0.22)"]
 
 [[package]]
+name = "asyncio-zabbix-sender"
+version = "0.1.1"
+description = "Asyncio implementation of the Zabbix Sender protocol"
+category = "main"
+optional = false
+python-versions = ">=3.8,<4.0"
+files = [
+    {file = "asyncio_zabbix_sender-0.1.1-py3-none-any.whl", hash = "sha256:d48f23c5683366402a6effd68c7c7272a79bbdd8a07c71652f403a3dac48cd30"},
+    {file = "asyncio_zabbix_sender-0.1.1.tar.gz", hash = "sha256:94d6fa33769684694ba7886c03e1a2a1cdce434b30d8d670ab90e60736524fad"},
+]
+
+[[package]]
 name = "attrs"
 version = "22.2.0"
 description = "Classes Without Boilerplate"
@@ -304,19 +316,6 @@ pyyaml = ">=5.1"
 virtualenv = ">=20.10.0"
 
 [[package]]
-name = "py-zabbix"
-version = "1.1.7"
-description = "Python module to work with zabbix."
-category = "main"
-optional = false
-python-versions = "*"
-files = [
-    {file = "py-zabbix-1.1.7.tar.gz", hash = "sha256:0176569e61b134a9e445d9086cdfe895583ffe938f34deea3a9cffa78011e459"},
-    {file = "py_zabbix-1.1.7-py2-none-any.whl", hash = "sha256:40d1555d448ed05462764172894a8a3d97ba11e7b61e5f402f7180fe233899e1"},
-    {file = "py_zabbix-1.1.7-py3-none-any.whl", hash = "sha256:f921abc88298c56f5aab9054815122ca959f8612df88fdc3a240ad2d95e4c282"},
-]
-
-[[package]]
 name = "pydantic"
 version = "1.10.7"
 description = "Data validation and settings management using python type hints"
@@ -555,4 +554,4 @@ test = ["covdefaults (>=2.2.2)", "coverage (>=7.1)", "coverage-enable-subprocess
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "eb56895f140aaecb64ea46787994aba2d92e28a0ec1e865c7aa44cc71d277ab9"
+content-hash = "dfa8075b8c08f81ec391e25e230aaaa28e6dfc7d2310f264801a65889d9620f5"

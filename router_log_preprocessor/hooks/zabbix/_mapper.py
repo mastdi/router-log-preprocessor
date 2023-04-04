@@ -16,7 +16,7 @@ import enum
 import json
 import typing
 
-import pyzabbix
+import asyncio_zabbix_sender
 
 import router_log_preprocessor.domain as domain
 import router_log_preprocessor.hooks.zabbix._known_clients as _known_clients
@@ -24,7 +24,7 @@ import router_log_preprocessor.hooks.zabbix._known_clients as _known_clients
 
 def map_client_message(
     record: domain.LogRecord, message: domain.Message
-) -> typing.List[pyzabbix.ZabbixMetric]:
+) -> asyncio_zabbix_sender.Measurements:
     assert record.process is not None
 
     # Ensure process is formatted according to Zabbix recommendations
@@ -33,7 +33,7 @@ def map_client_message(
     clock = int(record.timestamp.timestamp())
 
     # Construct the measurements from the model
-    measurements = []
+    measurements = asyncio_zabbix_sender.Measurements()
     model_fields = dataclasses.fields(message)
     for field in model_fields:
         if field.name == "mac_address":
@@ -41,8 +41,8 @@ def map_client_message(
         value = getattr(message, field.name)
         if isinstance(value, enum.Enum):
             value = value.value
-        measurements.append(
-            pyzabbix.ZabbixMetric(
+        measurements.add_measurement(
+            asyncio_zabbix_sender.Measurement(
                 host=record.hostname,
                 key=f"rlp.{process}[{field.name},{message.mac_address}]",
                 value=value,
@@ -54,18 +54,18 @@ def map_client_message(
 
 def map_client_discovery(
     record: domain.LogRecord, known_clients: _known_clients.KnownClients
-) -> typing.List[pyzabbix.ZabbixMetric]:
+) -> asyncio_zabbix_sender.Measurements:
     assert record.process is not None
     value = json.dumps(
         [{"mac": str(mac)} for mac in known_clients.clients(record.process)],
         indent=None,
         separators=(",", ":"),
     )
-    return [
-        pyzabbix.ZabbixMetric(
+    return asyncio_zabbix_sender.Measurements([
+        asyncio_zabbix_sender.Measurement(
             host=record.hostname,
             key=f"rlp.client_discovery[{record.process.lower()}]",
             value=value,
             clock=int(record.timestamp.timestamp()),
         )
-    ]
+    ])
