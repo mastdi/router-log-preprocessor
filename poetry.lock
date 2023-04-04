@@ -22,6 +22,18 @@ test = ["contextlib2", "coverage[toml] (>=4.5)", "hypothesis (>=4.0)", "mock (>=
 trio = ["trio (>=0.16,<0.22)"]
 
 [[package]]
+name = "asyncio-zabbix-sender"
+version = "0.1.1"
+description = "Asyncio implementation of the Zabbix Sender protocol"
+category = "main"
+optional = false
+python-versions = ">=3.8,<4.0"
+files = [
+    {file = "asyncio_zabbix_sender-0.1.1-py3-none-any.whl", hash = "sha256:d48f23c5683366402a6effd68c7c7272a79bbdd8a07c71652f403a3dac48cd30"},
+    {file = "asyncio_zabbix_sender-0.1.1.tar.gz", hash = "sha256:94d6fa33769684694ba7886c03e1a2a1cdce434b30d8d670ab90e60736524fad"},
+]
+
+[[package]]
 name = "attrs"
 version = "22.2.0"
 description = "Classes Without Boilerplate"
@@ -555,4 +567,4 @@ test = ["covdefaults (>=2.2.2)", "coverage (>=7.1)", "coverage-enable-subprocess
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "eb56895f140aaecb64ea46787994aba2d92e28a0ec1e865c7aa44cc71d277ab9"
+content-hash = "d13043bc66352afcae6fac0834419abbd7187f6bb5459818a8c9a705df3ea337"
