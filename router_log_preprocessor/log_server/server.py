@@ -11,7 +11,7 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-import pyzabbix
+import asyncio_zabbix_sender
 from anyio import create_task_group, create_udp_socket
 
 import router_log_preprocessor.hooks.zabbix
@@ -36,8 +36,8 @@ def log_handler_factory() -> router_log_preprocessor.log_server.handler.LogHandl
     # Set up hooks
     settings = router_log_preprocessor.settings.settings()
     zabbix_servers = settings.zabbix_servers
-    sender = pyzabbix.ZabbixSender(
-        zabbix_server=zabbix_servers[0][0], zabbix_port=zabbix_servers[0][1]
+    sender = asyncio_zabbix_sender.ZabbixSender(
+        zabbix_host=zabbix_servers[0][0], zabbix_port=zabbix_servers[0][1]
     )
     zabbix_trapper = router_log_preprocessor.hooks.zabbix.ZabbixTrapper(sender)
     hooks = [zabbix_trapper]

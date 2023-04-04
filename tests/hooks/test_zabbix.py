@@ -12,10 +12,11 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 import datetime
+import decimal
 import unittest.mock
 
 import pytest
-import pyzabbix
+import asyncio_zabbix_sender._response
 
 import router_log_preprocessor.domain
 import router_log_preprocessor.hooks.zabbix
@@ -29,10 +30,11 @@ def anyio_backend():
 
 @pytest.fixture
 def zabbix_sender():
-    response = pyzabbix.ZabbixResponse()
-    response._processed = 1
-    sender = unittest.mock.MagicMock()
-    sender.send = unittest.mock.MagicMock(return_value=response)
+    response = asyncio_zabbix_sender._response.ZabbixResponse(
+        1, 0, 1, decimal.Decimal("0.001")
+    )
+    sender = unittest.mock.Mock(spec_set=asyncio_zabbix_sender.ZabbixSender)
+    sender.send = unittest.mock.AsyncMock(return_value=response)
     return sender
 
 

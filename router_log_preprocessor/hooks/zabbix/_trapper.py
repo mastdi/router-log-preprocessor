@@ -56,10 +56,9 @@ class ZabbixTrapper(abc.Hook):
             )
             await anyio.sleep(seconds_until_discovered)
         measurements = mapper.map_client_message(record, message)
-        # py-zabbix does not support async communication, so for now we utilize anyio
-        # to overcome this.
+
         logging.logger.info("Sending data: %r", measurements)
-        response = await anyio.to_thread.run_sync(self._sender.send, measurements)
+        response = await self._sender.send(measurements)
         logging.logger.info("Response: %r", response)
 
     async def discover_client(
@@ -98,10 +97,9 @@ class ZabbixTrapper(abc.Hook):
         self._known_clients.add_client(record.process, message.mac_address)
 
         measurements = mapper.map_client_discovery(record, self._known_clients)
-        # py-zabbix does not support async communication, so for now we utilize anyio
-        # to overcome this.
+
         logging.logger.info("Discovering: %r", measurements)
-        response = await anyio.to_thread.run_sync(self._sender.send, measurements)
+        response = await self._sender.send(measurements)
         logging.logger.info("Response: %r", response)
         assert response.processed == 1, response
         return self._client_discovery_wait_time
