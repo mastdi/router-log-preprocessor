@@ -11,10 +11,7 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-import typing
-
 import asyncio_zabbix_sender
-import ix
 
 import router_log_preprocessor.domain
 import router_log_preprocessor.hooks.zabbix._known_clients as _known_clients
