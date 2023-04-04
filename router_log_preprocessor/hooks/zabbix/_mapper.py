@@ -13,6 +13,7 @@
 #  limitations under the License.
 import dataclasses
 import enum
+import ipaddress
 import json
 import typing
 
@@ -41,6 +42,8 @@ def map_client_message(
         value = getattr(message, field.name)
         if isinstance(value, enum.Enum):
             value = value.value
+        elif isinstance(value, (ipaddress.IPv4Address, ipaddress.IPv6Address)):
+            value = str(value)
         measurements.add_measurement(
             asyncio_zabbix_sender.Measurement(
                 host=record.hostname,

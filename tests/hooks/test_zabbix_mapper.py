@@ -11,6 +11,8 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+import ipaddress
+
 import asyncio_zabbix_sender
 
 import router_log_preprocessor.domain
@@ -64,6 +66,25 @@ def test_map_client_message():
     assert int(_get_value(measurements, "event")) == _MESSAGE.event.value
     assert int(_get_value(measurements, "rssi")) == _MESSAGE.rssi
     assert _get_value(measurements, "reason") == _MESSAGE.reason
+
+
+def test_map_client_message_dhcp():
+    message = router_log_preprocessor.domain.DnsmasqDhcpAcknowledge(
+        mac_address=router_log_preprocessor.domain.MAC("AB:CD:EF:01:23:45"),
+        ip_address=ipaddress.IPv4Address("192.168.101.149"),
+        hostname="fake-client"
+    )
+
+    measurements = mapper.map_client_message(_RECORD, message)
+
+    assert len(measurements._measurements) == 2
+    assert all(
+        measurement.clock == int(_RECORD.timestamp.timestamp())
+        for measurement in measurements._measurements
+    )
+    assert _get_value(measurements, "ip_address") == str(message.ip_address)
+    assert _get_value(measurements, "hostname") == message.hostname
+
 
 
 def test_map_client_discovery():
