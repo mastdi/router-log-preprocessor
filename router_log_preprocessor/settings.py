@@ -44,30 +44,14 @@ class Settings(BaseSettings):
         default=pathlib.Path.cwd(),
         description="The base directory where logs from this application resides.",
     )
-    zabbix_addresses: str = Field(
+    zabbix_host: str = Field(
         default="",
-        description="Multiple comma-delimited addresses can be provided to use several "
-        "independent Zabbix servers in parallel. Each address is an IP "
-        "address or DNS name and optional port separated by colon. If port "
-        "is not specified, default port 10051 is used.",
+        description="A IP address or DNS name of the Zabbix instance.",
     )
-
-    @property
-    def zabbix_servers(self) -> List[Tuple[str, int]]:
-        """The parsed zabbix_addresses list as IP/DNS and port tuple.
-
-        :return: List of Zabbix servers to communicate to.
-        """
-        servers = []
-        addresses = self.zabbix_addresses.split(",")
-        for address in addresses:
-            address_parts = address.split(":")
-            if len(address_parts) == 2:
-                servers.append((address_parts[0], int(address_parts[1])))
-            else:
-                assert len(address_parts) == 1
-                servers.append((address_parts[0], 10051))
-        return servers
+    zabbix_port: int = Field(
+        default=10051,
+        description="The port used in the Zabbix instance.",
+    )
 
 
 @lru_cache

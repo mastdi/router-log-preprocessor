@@ -35,9 +35,9 @@ def log_handler_factory() -> router_log_preprocessor.log_server.handler.LogHandl
     }
     # Set up hooks
     settings = router_log_preprocessor.settings.settings()
-    zabbix_servers = settings.zabbix_servers
+
     sender = asyncio_zabbix_sender.ZabbixSender(
-        zabbix_host=zabbix_servers[0][0], zabbix_port=zabbix_servers[0][1]
+        zabbix_host=settings.zabbix_host, zabbix_port=settings.zabbix_port
     )
     zabbix_trapper = router_log_preprocessor.hooks.zabbix.ZabbixTrapper(sender)
     hooks = [zabbix_trapper]
