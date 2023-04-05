@@ -28,3 +28,47 @@ $ git pull https://github.com/mastdi/router-log-preprocessor.git
 $ cd router-log-preprocessor
 $ poetry install
 ```
+
+## Usage
+Installing the package using pip also creates the executable script named `router-log-preprocessor`.
+On Linux systems the router log preprocessor can be run by
+
+```console
+./router-log-preprocessor
+```
+
+The configuration solely happens through environment variables or a `.env` configuration file located in the current working directory.
+The most important variables are documented below. 
+A full sample can be found in [.env](https://raw.githubusercontent.com/mastdi/router-log-preprocessor/master/.env).
+The application reads, in order of the least priority to the highest file:
+1. `.env`,
+2. `.env.dev`,
+3. `.env.test`,
+4. `.env.staging`,
+5. `.env.prod`,
+
+meaning that values stored in `.env.prod` will overwrite any values from other dovenv files.
+Parameters stored in environment variables will always take priority over values loaded from a dotenv file.
+
+```dotenv
+# Purpose: Specifies the IP address or hostname of the local interface to which the
+# logging system should bind.
+# Format: A string containing a valid IP address or hostname, such as "192.168.0.1" or
+# "example.com".
+LOG_SERVER_HOST="0.0.0.0"
+
+# Purpose: Specifies the port number of the server to which log data should be sent.
+# Format: An integer representing a valid port number, such as 514.
+LOG_SERVER_PORT=8514
+
+# Purpose: Specifies the hostname or IP address of the Zabbix server to which the
+# Zabbix Sender should send monitoring data.
+# Format: A string containing a valid hostname or IP address, such as "example.com" or
+# "192.168.0.1".
+ZABBIX_HOST="example.com"
+
+# Purpose: Specifies the port number on which the Zabbix server is running and to
+# which the Zabbix Sender should send monitoring data.
+# Format: An integer representing a valid port number, such as 10051.
+ZABBIX_PORT=10051
+```
