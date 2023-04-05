@@ -53,6 +53,10 @@ class Settings(BaseSettings):
         description="The port used in the Zabbix instance.",
     )
 
+    class Config:
+        env_file = '.env', '.env.dev', '.env.test', '.env.staging', '.env.prod'
+        env_file_encoding = 'utf-8'
+
 
 @lru_cache
 def settings() -> Settings:
