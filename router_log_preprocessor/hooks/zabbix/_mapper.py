@@ -32,6 +32,9 @@ def map_client_message(
     process = record.process.lower().replace("-", "_")
     # Convert record datetime to timestamp in full seconds
     clock = int(record.timestamp.timestamp())
+    ns = None
+    if isinstance(message, domain.WlcEventModel):
+        ns = message.event.value * 1000000
 
     # Construct the measurements from the model
     measurements = asyncio_zabbix_sender.Measurements()
@@ -50,6 +53,7 @@ def map_client_message(
                 key=f"rlp.{process}[{field.name},{message.mac_address}]",
                 value=value,
                 clock=clock,
+                ns=ns,
             )
         )
     return measurements
