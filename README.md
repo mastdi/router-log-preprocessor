@@ -72,3 +72,84 @@ ZABBIX_HOST="example.com"
 # Format: An integer representing a valid port number, such as 10051.
 ZABBIX_PORT=10051
 ```
+
+## As a service
+
+Setting up a service user:
+
+```console
+sudo adduser rlp --disabled-password --gecos ""
+sudo su rlp
+cd ~
+```
+
+Creating the environment:
+The command `python3` is a Python 3.8 compatible version.
+
+```console
+python3 -m venv venv
+cd venv
+source bin/activate
+pip install router-log-preprocessor
+```
+
+Create a .env based on [.env](https://raw.githubusercontent.com/mastdi/router-log-preprocessor/master/.env), e.g.
+```console
+curl -o .env https://raw.githubusercontent.com/mastdi/router-log-preprocessor/master/.env
+nano .env
+```
+
+We are done setting up the servie user:
+
+```console
+exit
+```
+
+If the `LOGGING_DIRECTORY` is set to `/var/log/rlp` set up the directory
+
+```console
+sudo mkdir /var/log/rlp
+sudo chown rlp:rlp /var/log/rlp
+```
+
+Set up the service by copy-paste the below
+
+```ini
+[Unit]
+Description=Router Log Preprocessor service
+After=network.target
+
+[Service]
+User=rlp
+WorkingDirectory=/home/rlp/venv
+Environment="PATH=/home/rlp/venv/bin"
+EnvironmentFile=/home/rlp/venv/.env
+ExecStart=/home/rlp/venv/bin/router-log-preprocessor
+Restart=on-failure
+RestartSec=5s
+StartLimitInterval=60s
+StartLimitBurst=3
+
+[Install]
+WantedBy=multi-user.target
+```
+
+into `/etc/systemd/system/rlp.service`:
+
+```console
+sudo nano /etc/systemd/system/rlp.service
+sudo systemctl start rlp.service
+```
+
+Check that the service is started:
+
+```console
+sudo systemctl status rlp.service
+```
+should show `active (running)`.
+
+Make sure the service is started on system boot:
+
+```console
+sudo systemctl enable rlp.service 
+```
