@@ -144,7 +144,7 @@ async def test_send_new_client(zabbix_sender):
 
     mocked_discover_client.assert_called()
     # Ensure that the send method adheres to the wait time
-    mocked_sleep.assert_called_once_with(total_wait_time)
+    mocked_sleep.assert_has_calls([unittest.mock.call(total_wait_time), unittest.mock.call(10)])
     zabbix_sender.send.assert_called_once()
 
 
@@ -160,7 +160,7 @@ async def test_send_known_client(zabbix_sender):
             await trapper.send(_RECORD, _MESSAGE)
 
     mocked_discover_client.assert_called()
-    mocked_sleep.assert_not_called()
+    mocked_sleep.assert_called_once_with(10)
     zabbix_sender.send.assert_called_once()
 
 

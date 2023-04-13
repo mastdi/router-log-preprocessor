@@ -25,7 +25,7 @@ import router_log_preprocessor.hooks.zabbix._known_clients as _known_clients
 
 def map_client_message(
     record: domain.LogRecord, message: domain.Message
-) -> asyncio_zabbix_sender.Measurements:
+) -> typing.Generator[asyncio_zabbix_sender.Measurement, None, None]:
     assert record.process is not None
 
     # Ensure process is formatted according to Zabbix recommendations
@@ -36,8 +36,7 @@ def map_client_message(
     if isinstance(message, domain.WlcEventModel):
         ns = message.event.value * 1000000
 
-    # Construct the measurements from the model
-    measurements = asyncio_zabbix_sender.Measurements()
+    # Generate the measurements from the model
     model_fields = dataclasses.fields(message)
     for field in model_fields:
         if field.name == "mac_address":
@@ -47,16 +46,13 @@ def map_client_message(
             value = value.value
         elif isinstance(value, (ipaddress.IPv4Address, ipaddress.IPv6Address)):
             value = str(value)
-        measurements.add_measurement(
-            asyncio_zabbix_sender.Measurement(
-                host=record.hostname,
-                key=f"rlp.{process}[{field.name},{message.mac_address}]",
-                value=value,
-                clock=clock,
-                ns=ns,
-            )
+        yield asyncio_zabbix_sender.Measurement(
+            host=record.hostname,
+            key=f"rlp.{process}[{field.name},{message.mac_address}]",
+            value=value,
+            clock=clock,
+            ns=ns,
         )
-    return measurements
 
 
 def map_client_discovery(
