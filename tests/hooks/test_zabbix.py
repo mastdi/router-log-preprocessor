@@ -144,7 +144,7 @@ async def test_send_new_client(zabbix_sender):
 
     mocked_discover_client.assert_called()
     # Ensure that the send method adheres to the wait time
-    mocked_sleep.assert_called_once_with(total_wait_time)
+    mocked_sleep.assert_has_calls([unittest.mock.call(total_wait_time), unittest.mock.call(10)])
     zabbix_sender.send.assert_called_once()
 
 
@@ -160,7 +160,7 @@ async def test_send_known_client(zabbix_sender):
             await trapper.send(_RECORD, _MESSAGE)
 
     mocked_discover_client.assert_called()
-    mocked_sleep.assert_not_called()
+    mocked_sleep.assert_called_once_with(10)
     zabbix_sender.send.assert_called_once()
 
 
@@ -177,4 +177,21 @@ async def test_send_message_none(zabbix_sender):
     await zabbix_trapper.send(_RECORD, None)
 
     mocked_discover_client.assert_not_called()
+    zabbix_sender.send.assert_not_called()
+
+
+async def test_bundle_measurements(zabbix_sender):
+    with unittest.mock.patch.object(
+            router_log_preprocessor.hooks.zabbix.ZabbixTrapper,
+            "discover_client",
+            return_value=0,
+    ) as mocked_discover_client:
+        trapper = router_log_preprocessor.hooks.zabbix.ZabbixTrapper(zabbix_sender, 42)
+        trapper._is_bundling_measurements = True
+
+        with unittest.mock.patch("anyio.sleep") as mocked_sleep:
+            await trapper.send(_RECORD, _MESSAGE)
+
+    mocked_discover_client.assert_called()
+    mocked_sleep.assert_not_called()
     zabbix_sender.send.assert_not_called()

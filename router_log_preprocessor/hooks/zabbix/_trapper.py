@@ -14,6 +14,7 @@
 import typing
 
 import anyio
+import asyncio_zabbix_sender
 
 import router_log_preprocessor.domain as domain
 import router_log_preprocessor.hooks.abc as abc
@@ -23,11 +24,16 @@ import router_log_preprocessor.util.logging as logging
 
 
 class ZabbixTrapper(abc.Hook):
-    def __init__(self, sender, client_discovery_wait_time=60):
+    def __init__(
+        self, sender, client_discovery_wait_time=50, measurement_bundle_wait_time=10
+    ):
         super().__init__()
         self._sender = sender
         self._client_discovery_wait_time = client_discovery_wait_time
         self._known_clients = known_clients.KnownClients(client_discovery_wait_time)
+        self._measurement_bundle_wait_time = measurement_bundle_wait_time
+        self._is_bundling_measurements = False
+        self._measurements = asyncio_zabbix_sender.Measurements()
 
     async def send(
         self, record: domain.LogRecord, message: typing.Optional[domain.Message]
@@ -55,7 +61,25 @@ class ZabbixTrapper(abc.Hook):
                 seconds_until_discovered,
             )
             await anyio.sleep(seconds_until_discovered)
-        measurements = mapper.map_client_message(record, message)
+
+        for measurement in mapper.map_client_message(record, message):
+            self._measurements.add_measurement(measurement)
+
+        if self._is_bundling_measurements:
+            # This process is done and have handed over the responsibility to send the
+            # measurements to another process
+            return
+
+        # Allow other processes to add measurements while this process sleeps
+        self._is_bundling_measurements = True
+        await anyio.sleep(self._measurement_bundle_wait_time)
+
+        # Get the measurements and prepare an empty measurement container
+        # Once control is handed back to this process we have control of the
+        # measurements until the next await statement
+        self._is_bundling_measurements = False
+        measurements = self._measurements
+        self._measurements = asyncio_zabbix_sender.Measurements()
 
         logging.logger.info("Sending data: %r", measurements)
         response = await self._sender.send(measurements)

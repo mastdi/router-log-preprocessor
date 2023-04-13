@@ -47,20 +47,23 @@ def _get_value(
 ) -> str:
     return next(
         measurement
-        for measurement in measurements._measurements
+        for measurement in measurements
         if field_name in measurement.key.split("[")[1]
     ).value
 
 
 def test_map_client_message():
-    measurements = mapper.map_client_message(_RECORD, _MESSAGE)
+    measurements = [
+        measurement
+        for measurement in mapper.map_client_message(_RECORD, _MESSAGE)
+    ]
 
-    assert len(measurements._measurements) == 5
+    assert len(measurements) == 5
     assert all(
         measurement.clock == int(_RECORD.timestamp.timestamp())
-        for measurement in measurements._measurements
+        for measurement in measurements
     )
-    assert all(measurement.host == _RECORD.hostname for measurement in measurements._measurements)
+    assert all(measurement.host == _RECORD.hostname for measurement in measurements)
     assert _get_value(measurements, "location") == _MESSAGE.location
     assert int(_get_value(measurements, "status")) == _MESSAGE.status
     assert int(_get_value(measurements, "event")) == _MESSAGE.event.value
@@ -75,12 +78,15 @@ def test_map_client_message_dhcp():
         hostname="fake-client"
     )
 
-    measurements = mapper.map_client_message(_RECORD, message)
+    measurements = [
+        measurement
+        for measurement in mapper.map_client_message(_RECORD, message)
+    ]
 
-    assert len(measurements._measurements) == 2
+    assert len(measurements) == 2
     assert all(
         measurement.clock == int(_RECORD.timestamp.timestamp())
-        for measurement in measurements._measurements
+        for measurement in measurements
     )
     assert _get_value(measurements, "ip_address") == str(message.ip_address)
     assert _get_value(measurements, "hostname") == message.hostname
