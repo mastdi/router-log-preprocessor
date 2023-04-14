@@ -20,10 +20,10 @@ from router_log_preprocessor.domain._message import Message
 
 class WlcEvent(enum.Enum):
     DISASSOCIATION = 0
-    DEAUTH_IND = 1
-    AUTHENTICATE = 2
-    ASSOCIATION = 3
-    REASSOCIATION = 4
+    DEAUTH_IND = 1000000
+    AUTHENTICATE = 2000000
+    ASSOCIATION = 3000000
+    REASSOCIATION = 4000000
 
     @classmethod
     def from_event(cls, event: str) -> "WlcEvent":
