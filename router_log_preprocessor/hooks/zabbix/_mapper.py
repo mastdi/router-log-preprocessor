@@ -34,7 +34,7 @@ def map_client_message(
     clock = int(record.timestamp.timestamp())
     ns = None
     if isinstance(message, domain.WlcEventModel):
-        ns = message.event.value * 1000000
+        ns = message.event.value
 
     # Generate the measurements from the model
     model_fields = dataclasses.fields(message)
