@@ -26,7 +26,7 @@ _RFC3164_PATTERN = re.compile(
     # Hostname
     r"(\S+)\s"
     # Optional process information
-    r"(\S+?)(?:\[([0-9]+)])?:\s"
+    r"([a-zA-Z0-9_\-\s]*)(?:\[([0-9]+)])?:\s"
     # Message
     r"(.*)"
     # End of log
