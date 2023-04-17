@@ -103,7 +103,7 @@ def parse(record: str) -> LogRecord:
     """
     match = _RFC3164_PATTERN.match(record)
     if match is None:
-        raise RuntimeError("")
+        raise RuntimeError(f"Could not parse record according to RFC3164: {record}")
     groups = match.groups()
     # Priority is facility * 8 + severity, so divmod is the inverse of that
     facility, severity = divmod(int(groups[0]), 8)
