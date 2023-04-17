@@ -141,3 +141,60 @@ def test_parse(message, expected_record):
 def test_bad_formatted_log_entry():
     with pytest.raises(RuntimeError):
         router_log_preprocessor.util.rfc3164_parser.parse("Hello world")
+
+
+def test_parse_with_space_in_process_name():
+    message = "<8>Apr 17 16:50:10 GT-AX11000-ABCD-1234567-E Samba Server: smb daemon is stopped"
+    expected_record = router_log_preprocessor.util.rfc3164_parser.LogRecord(
+        facility=1,
+        severity=0,
+        timestamp=router_log_preprocessor.util.rfc3164_parser.timestamp_to_datetime(
+            "Apr", "17", "16", "50", "10"
+        ),
+        hostname="GT-AX11000-ABCD-1234567-E",
+        process="Samba Server",
+        process_id=None,
+        message="smb daemon is stopped",
+    )
+
+    record = router_log_preprocessor.util.rfc3164_parser.parse(message)
+
+    assert record == expected_record
+
+
+def test_parse_with_space_in_process_name_and_a_process_id():
+    message = "<8>Apr 17 16:50:10 GT-AX11000-ABCD-1234567-E Samba Server[23993]: smb daemon is stopped"
+    expected_record = router_log_preprocessor.util.rfc3164_parser.LogRecord(
+        facility=1,
+        severity=0,
+        timestamp=router_log_preprocessor.util.rfc3164_parser.timestamp_to_datetime(
+            "Apr", "17", "16", "50", "10"
+        ),
+        hostname="GT-AX11000-ABCD-1234567-E",
+        process="Samba Server",
+        process_id=23993,
+        message="smb daemon is stopped",
+    )
+
+    record = router_log_preprocessor.util.rfc3164_parser.parse(message)
+
+    assert record == expected_record
+
+
+def test_parse_without_process_name():
+    message = "<8>Apr 17 16:50:10 GT-AX11000-ABCD-1234567-E: smb daemon is stopped"
+    expected_record = router_log_preprocessor.util.rfc3164_parser.LogRecord(
+        facility=1,
+        severity=0,
+        timestamp=router_log_preprocessor.util.rfc3164_parser.timestamp_to_datetime(
+            "Apr", "17", "16", "50", "10"
+        ),
+        hostname="GT-AX11000-ABCD-1234567-E",
+        process=None,
+        process_id=None,
+        message="smb daemon is stopped",
+    )
+
+    record = router_log_preprocessor.util.rfc3164_parser.parse(message)
+
+    assert record == expected_record

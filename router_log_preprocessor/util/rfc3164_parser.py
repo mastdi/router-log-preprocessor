@@ -24,9 +24,9 @@ _RFC3164_PATTERN = re.compile(
     # Timestamp
     r"([a-zA-Z]{3})\s{1,2}(\d{1,2})\s(\d\d):(\d\d):(\d\d)\s"
     # Hostname
-    r"(\S+)\s"
+    r"(\S+)"
     # Optional process information
-    r"(\S+?)(?:\[([0-9]+)])?:\s"
+    r"([a-zA-Z0-9_\-\s]*)(?:\[([0-9]+)])?:\s"
     # Message
     r"(.*)"
     # End of log
@@ -103,7 +103,7 @@ def parse(record: str) -> LogRecord:
     """
     match = _RFC3164_PATTERN.match(record)
     if match is None:
-        raise RuntimeError("")
+        raise RuntimeError(f"Could not parse record according to RFC3164: {record}")
     groups = match.groups()
     # Priority is facility * 8 + severity, so divmod is the inverse of that
     facility, severity = divmod(int(groups[0]), 8)
@@ -112,7 +112,9 @@ def parse(record: str) -> LogRecord:
         severity=severity,
         timestamp=timestamp_to_datetime(*groups[1:6]),
         hostname=groups[6],
-        process=groups[7],
+        # If the process name is given then there will be a leading space included
+        # from the space after the hostname. That space is removed using lstrip().
+        process=groups[7].lstrip() if len(groups[7]) > 0 else None,
         process_id=int(groups[8]) if groups[8] is not None else None,
         message=groups[9],
     )
