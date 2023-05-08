@@ -21,6 +21,7 @@ import asyncio_zabbix_sender._response
 import router_log_preprocessor.domain
 import router_log_preprocessor.hooks.zabbix
 import router_log_preprocessor.util.rfc3164_parser
+from tests.hooks.util import RECORD, MESSAGE
 
 
 @pytest.fixture
@@ -41,27 +42,6 @@ def zabbix_sender():
 # All test functions in this module should be tested using anyio
 pytestmark = pytest.mark.anyio
 
-_RECORD = router_log_preprocessor.domain.LogRecord(
-    facility=1,
-    severity=5,
-    timestamp=router_log_preprocessor.util.rfc3164_parser.timestamp_to_datetime(
-        "Feb", "2", "13", "02", "51"
-    ),
-    hostname="GT-AX11000-ABCD-1234567-E",
-    process="wlceventd",
-    process_id=None,
-    message="Not relevant for testing",
-)
-
-_MESSAGE = router_log_preprocessor.domain.WlcEventModel(
-    location="wl0.1",
-    mac_address=router_log_preprocessor.domain.MAC("AB:CD:EF:01:23:45"),
-    status=0,
-    event=router_log_preprocessor.domain.WlcEvent.DEAUTH_IND,
-    rssi=0,
-    reason="N/A",
-)
-
 
 class MockedDatetime(datetime.datetime):
     faked_utcnow = None
@@ -78,7 +58,7 @@ async def test_discover_client_not_known(zabbix_sender):
         sender=zabbix_sender, client_discovery_wait_time=30
     )
 
-    wait_time = await zabbix_trapper.discover_client(_RECORD, _MESSAGE)
+    wait_time = await zabbix_trapper.discover_client(RECORD, MESSAGE)
 
     assert wait_time == 30
     zabbix_sender.send.assert_called_once()
@@ -94,11 +74,11 @@ async def test_discover_client_just_known(zabbix_sender):
     try:
         datetime.datetime = MockedDatetime
         MockedDatetime.faked_utcnow = first_call_time
-        await zabbix_trapper.discover_client(_RECORD, _MESSAGE)
+        await zabbix_trapper.discover_client(RECORD, MESSAGE)
         zabbix_sender.send.reset_mock()
 
         MockedDatetime.faked_utcnow = next_call_time
-        wait_time = await zabbix_trapper.discover_client(_RECORD, _MESSAGE)
+        wait_time = await zabbix_trapper.discover_client(RECORD, MESSAGE)
     finally:
         datetime.datetime = original_datetime
         MockedDatetime.faked_utcnow = None
@@ -116,11 +96,11 @@ async def test_discover_client_known_and_discovered(zabbix_sender):
     try:
         datetime.datetime = MockedDatetime
         MockedDatetime.faked_utcnow = first_call_time
-        await zabbix_trapper.discover_client(_RECORD, _MESSAGE)
+        await zabbix_trapper.discover_client(RECORD, MESSAGE)
         zabbix_sender.send.reset_mock()
 
         MockedDatetime.faked_utcnow = next_call_time
-        wait_time = await zabbix_trapper.discover_client(_RECORD, _MESSAGE)
+        wait_time = await zabbix_trapper.discover_client(RECORD, MESSAGE)
     finally:
         datetime.datetime = original_datetime
         MockedDatetime.faked_utcnow = None
@@ -140,7 +120,7 @@ async def test_send_new_client(zabbix_sender):
         )
 
         with unittest.mock.patch("anyio.sleep") as mocked_sleep:
-            await trapper.send(_RECORD, _MESSAGE)
+            await trapper.send(RECORD, MESSAGE)
 
     mocked_discover_client.assert_called()
     # Ensure that the send method adheres to the wait time
@@ -157,7 +137,7 @@ async def test_send_known_client(zabbix_sender):
         trapper = router_log_preprocessor.hooks.zabbix.ZabbixTrapper(zabbix_sender, 42)
 
         with unittest.mock.patch("anyio.sleep") as mocked_sleep:
-            await trapper.send(_RECORD, _MESSAGE)
+            await trapper.send(RECORD, MESSAGE)
 
     mocked_discover_client.assert_called()
     mocked_sleep.assert_called_once_with(10)
@@ -174,7 +154,7 @@ async def test_send_message_none(zabbix_sender):
             sender=zabbix_sender, client_discovery_wait_time=30
         )
 
-    await zabbix_trapper.send(_RECORD, None)
+    await zabbix_trapper.send(RECORD, None)
 
     mocked_discover_client.assert_not_called()
     zabbix_sender.send.assert_not_called()
@@ -190,7 +170,7 @@ async def test_bundle_measurements(zabbix_sender):
         trapper._is_bundling_measurements = True
 
         with unittest.mock.patch("anyio.sleep") as mocked_sleep:
-            await trapper.send(_RECORD, _MESSAGE)
+            await trapper.send(RECORD, MESSAGE)
 
     mocked_discover_client.assert_called()
     mocked_sleep.assert_not_called()
