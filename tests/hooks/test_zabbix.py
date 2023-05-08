@@ -12,45 +12,17 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 import datetime
-import decimal
 import unittest.mock
 
 import pytest
-import asyncio_zabbix_sender._response
 
 import router_log_preprocessor.domain
 import router_log_preprocessor.hooks.zabbix
 import router_log_preprocessor.util.rfc3164_parser
-from tests.hooks.util import RECORD, MESSAGE
-
-
-@pytest.fixture
-def anyio_backend():
-    return "asyncio"
-
-
-@pytest.fixture
-def zabbix_sender():
-    response = asyncio_zabbix_sender._response.ZabbixResponse(
-        1, 0, 1, decimal.Decimal("0.001")
-    )
-    sender = unittest.mock.Mock(spec_set=asyncio_zabbix_sender.ZabbixSender)
-    sender.send = unittest.mock.AsyncMock(return_value=response)
-    return sender
-
+from tests.hooks.util import RECORD, MESSAGE, MockedDatetime
 
 # All test functions in this module should be tested using anyio
 pytestmark = pytest.mark.anyio
-
-
-class MockedDatetime(datetime.datetime):
-    faked_utcnow = None
-
-    @classmethod
-    def utcnow(cls):
-        if cls.faked_utcnow is None:
-            return super().utcnow()
-        return cls.faked_utcnow
 
 
 async def test_discover_client_not_known(zabbix_sender):

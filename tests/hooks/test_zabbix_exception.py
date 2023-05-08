@@ -1,41 +1,13 @@
 import unittest.mock
 
-import asyncio_zabbix_sender
 import pytest
 
 import router_log_preprocessor.hooks.zabbix
-import router_log_preprocessor.domain as domain
 import router_log_preprocessor.util.rfc3164_parser
-from tests.hooks.util import RECORD, MESSAGE
+from tests.hooks.util import RECORD, MESSAGE, RaiseOnce
 
 # All test functions in this module should be tested using anyio
 pytestmark = pytest.mark.anyio
-
-
-@pytest.fixture
-def anyio_backend():
-    return "asyncio"
-
-
-class RaiseOnce:
-    def __init__(self, exception: Exception):
-        self.exception = exception
-        self.has_raised = False
-        self.call_count = 0
-
-    async def __call__(self, *args, **kwargs):
-        self.call_count += 1
-        if self.has_raised:
-            return
-        self.has_raised = True
-        raise self.exception
-
-
-@pytest.fixture(scope="function")
-def zabbix_sender_exception(request):
-    sender = unittest.mock.Mock(spec_set=asyncio_zabbix_sender.ZabbixSender)
-    sender.send = RaiseOnce(request.param)
-    return sender
 
 
 @pytest.mark.parametrize(
