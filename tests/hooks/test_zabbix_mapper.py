@@ -19,27 +19,7 @@ import router_log_preprocessor.domain
 import router_log_preprocessor.hooks.zabbix._known_clients as _known_clients
 import router_log_preprocessor.hooks.zabbix._mapper as mapper
 import router_log_preprocessor.util.rfc3164_parser
-
-_RECORD = router_log_preprocessor.domain.LogRecord(
-    facility=1,
-    severity=5,
-    timestamp=router_log_preprocessor.util.rfc3164_parser.timestamp_to_datetime(
-        "Feb", "2", "13", "02", "51"
-    ),
-    hostname="GT-AX11000-ABCD-1234567-E",
-    process="wlceventd",
-    process_id=None,
-    message="Not relevant for testing",
-)
-
-_MESSAGE = router_log_preprocessor.domain.WlcEventModel(
-    location="wl0.1",
-    mac_address=router_log_preprocessor.domain.MAC("AB:CD:EF:01:23:45"),
-    status=0,
-    event=router_log_preprocessor.domain.WlcEvent.DEAUTH_IND,
-    rssi=0,
-    reason="N/A",
-)
+from tests.hooks.util import MESSAGE, RECORD
 
 
 def _get_value(
@@ -55,20 +35,20 @@ def _get_value(
 def test_map_client_message():
     measurements = [
         measurement
-        for measurement in mapper.map_client_message(_RECORD, _MESSAGE)
+        for measurement in mapper.map_client_message(RECORD, MESSAGE)
     ]
 
     assert len(measurements) == 5
     assert all(
-        measurement.clock == int(_RECORD.timestamp.timestamp())
+        measurement.clock == int(RECORD.timestamp.timestamp())
         for measurement in measurements
     )
-    assert all(measurement.host == _RECORD.hostname for measurement in measurements)
-    assert _get_value(measurements, "location") == _MESSAGE.location
-    assert int(_get_value(measurements, "status")) == _MESSAGE.status
-    assert int(_get_value(measurements, "event")) == _MESSAGE.event.value
-    assert int(_get_value(measurements, "rssi")) == _MESSAGE.rssi
-    assert _get_value(measurements, "reason") == _MESSAGE.reason
+    assert all(measurement.host == RECORD.hostname for measurement in measurements)
+    assert _get_value(measurements, "location") == MESSAGE.location
+    assert int(_get_value(measurements, "status")) == MESSAGE.status
+    assert int(_get_value(measurements, "event")) == MESSAGE.event.value
+    assert int(_get_value(measurements, "rssi")) == MESSAGE.rssi
+    assert _get_value(measurements, "reason") == MESSAGE.reason
 
 
 def test_map_client_message_dhcp():
@@ -80,27 +60,26 @@ def test_map_client_message_dhcp():
 
     measurements = [
         measurement
-        for measurement in mapper.map_client_message(_RECORD, message)
+        for measurement in mapper.map_client_message(RECORD, message)
     ]
 
     assert len(measurements) == 2
     assert all(
-        measurement.clock == int(_RECORD.timestamp.timestamp())
+        measurement.clock == int(RECORD.timestamp.timestamp())
         for measurement in measurements
     )
     assert _get_value(measurements, "ip_address") == str(message.ip_address)
     assert _get_value(measurements, "hostname") == message.hostname
 
 
-
 def test_map_client_discovery():
     known_clients = _known_clients.KnownClients(42)
-    known_clients.add_client(_RECORD.process, _MESSAGE.mac_address)
+    known_clients.add_client(RECORD.process, MESSAGE.mac_address)
 
-    measurements = mapper.map_client_discovery(_RECORD, known_clients)
+    measurements = mapper.map_client_discovery(RECORD, known_clients)
 
     assert len(measurements._measurements) == 1
     measurement = measurements._measurements[0]
-    assert measurement.clock == int(_RECORD.timestamp.timestamp())
-    assert measurement.host == _RECORD.hostname
-    assert measurement.value == '[{"mac":"' + str(_MESSAGE.mac_address) + '"}]'
+    assert measurement.clock == int(RECORD.timestamp.timestamp())
+    assert measurement.host == RECORD.hostname
+    assert measurement.value == '[{"mac":"' + str(MESSAGE.mac_address) + '"}]'

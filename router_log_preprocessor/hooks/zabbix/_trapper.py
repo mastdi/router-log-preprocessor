@@ -65,25 +65,7 @@ class ZabbixTrapper(abc.Hook):
         for measurement in mapper.map_client_message(record, message):
             self._measurements.add_measurement(measurement)
 
-        if self._is_bundling_measurements:
-            # This process is done and have handed over the responsibility to send the
-            # measurements to another process
-            return
-
-        # Allow other processes to add measurements while this process sleeps
-        self._is_bundling_measurements = True
-        await anyio.sleep(self._measurement_bundle_wait_time)
-
-        # Get the measurements and prepare an empty measurement container
-        # Once control is handed back to this process we have control of the
-        # measurements until the next await statement
-        self._is_bundling_measurements = False
-        measurements = self._measurements
-        self._measurements = asyncio_zabbix_sender.Measurements()
-
-        logging.logger.info("Sending data: %r", measurements)
-        response = await self._sender.send(measurements)
-        logging.logger.info("Response: %r", response)
+        await self._start_bundling()
 
     async def discover_client(
         self, record: domain.LogRecord, message: domain.Message
@@ -127,3 +109,43 @@ class ZabbixTrapper(abc.Hook):
         logging.logger.info("Response: %r", response)
         assert response.processed == 1, response
         return self._client_discovery_wait_time
+
+    async def _start_bundling(self):
+        """Ensure that bundling of measurements has started.
+
+        If another process already started the bundling of measurements, then nothing
+        further is done. Otherwise, this will take responsibility of both bundling the
+        measurements and sending the measurements to Zabbix after the
+        `measurement_bundle_wait_time` has elapsed.
+
+        If the sending of measurements fails, then the process is retried indefinitely.
+        """
+        if self._is_bundling_measurements:
+            # This process is done and have handed over the responsibility to send the
+            # measurements to another process
+            return
+
+            # Allow other processes to add measurements while this process sleeps
+        self._is_bundling_measurements = True
+        await anyio.sleep(self._measurement_bundle_wait_time)
+
+        # Get the measurements and prepare an empty measurement container
+        # Once control is handed back to this process we have control of the
+        # measurements until the next await statement
+        self._is_bundling_measurements = False
+        measurements = self._measurements
+        self._measurements = asyncio_zabbix_sender.Measurements()
+
+        try:
+            logging.logger.info("Sending data: %r", measurements)
+            response = await self._sender.send(measurements)
+            logging.logger.info("Response: %r", response)
+        except ConnectionError as connection_error:
+            logging.logger.warning(
+                "Connection error to Zabbix server: %r",
+                connection_error
+            )
+            # Add the failed measurements and retry
+            for measurement in measurements:
+                self._measurements.add_measurement(measurement)
+            await self._start_bundling()
