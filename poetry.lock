@@ -40,14 +40,14 @@ trio = ["trio (>=0.23)"]
 
 [[package]]
 name = "asyncio-zabbix-sender"
-version = "0.1.2"
+version = "0.2.0"
 description = "Asyncio implementation of the Zabbix Sender protocol"
 category = "main"
 optional = false
 python-versions = ">=3.8,<4.0"
 files = [
-    {file = "asyncio_zabbix_sender-0.1.2-py3-none-any.whl", hash = "sha256:60d0cf606db660770e91c5b8411a913fddf8fa0165152374264b1b1c85d2fbc0"},
-    {file = "asyncio_zabbix_sender-0.1.2.tar.gz", hash = "sha256:cb5de212d9a9f5b73f4e5d45392e640fa82b191d4bc865fd7b95da86a9558e64"},
+    {file = "asyncio_zabbix_sender-0.2.0-py3-none-any.whl", hash = "sha256:616c1f97f6ff1fdd4c185db2ec923b546f600031364f312005e2601f7f54377f"},
+    {file = "asyncio_zabbix_sender-0.2.0.tar.gz", hash = "sha256:792ec23ca4c2586cac57cc6b63da2addb6e04f7c9d538f6ee71379a48e7cd3aa"},
 ]
 
 [[package]]
@@ -642,4 +642,4 @@ test = ["covdefaults (>=2.3)", "coverage (>=7.2.7)", "coverage-enable-subprocess
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "0fdcbfef9e9e9150fc3fd90d252399f3c568474184df4e3e999265e84c12bf86"
+content-hash = "02712d1484725c078acea9243a7bb1404ea1e0cc5f29598cc0d2558465c3e9e7"
