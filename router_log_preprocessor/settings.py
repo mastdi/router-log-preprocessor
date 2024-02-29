@@ -12,6 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 import pathlib
+import typing
 from functools import lru_cache
 from typing import List, Tuple, Union
 
@@ -57,7 +58,20 @@ class Settings(pydantic_settings.BaseSettings):
         default=10051,
         description="The port used in the Zabbix instance.",
     )
+    zabbix_tls_cert_file: typing.Optional[pathlib.Path] = Field(
+        default=None,
+        description="The full pathname of a file containing the agent certificate or certificate chain."
+    )
+    zabbix_tls_key_file: typing.Optional[pathlib.Path] = Field(
+        default=None,
+        description="The full pathname of a file containing the agent private key."
+    )
 
+    @property
+    def is_zabbix_with_tls(self) -> bool:
+        """Return true if the Zabbix sender should use TLS when communicating with the Zabbix Server/Proxy
+        """
+        return self.zabbix_tls_cert_file is not None and self.zabbix_tls_key_file is not None
 
 
 @lru_cache

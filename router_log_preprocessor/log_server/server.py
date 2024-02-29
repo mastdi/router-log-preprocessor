@@ -11,6 +11,8 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+import ssl
+
 import asyncio_zabbix_sender
 from anyio import create_task_group, create_udp_socket
 
@@ -35,9 +37,13 @@ def log_handler_factory() -> router_log_preprocessor.log_server.handler.LogHandl
     }
     # Set up hooks
     settings = router_log_preprocessor.settings.settings()
+    ssl_context = None
+    if settings.is_zabbix_with_tls:
+        ssl_context = ssl.SSLContext()
+        ssl_context.load_cert_chain(settings.zabbix_tls_cert_file, settings.zabbix_tls_key_file)
 
     sender = asyncio_zabbix_sender.ZabbixSender(
-        zabbix_host=settings.zabbix_host, zabbix_port=settings.zabbix_port
+        zabbix_host=settings.zabbix_host, zabbix_port=settings.zabbix_port, ssl_context=ssl_context
     )
     zabbix_trapper = router_log_preprocessor.hooks.zabbix.ZabbixTrapper(sender)
     hooks = [zabbix_trapper]
