@@ -16,11 +16,16 @@ from functools import lru_cache
 from typing import List, Tuple, Union
 
 import pydantic
-from pydantic import BaseSettings, Field, IPvAnyAddress
+from pydantic import Field, IPvAnyAddress
+import pydantic_settings
 
 
-class Settings(BaseSettings):
+class Settings(pydantic_settings.BaseSettings):
     """Define the settings of the application."""
+    model_config = pydantic_settings.SettingsConfigDict(
+        env_file=('.env', '.env.dev', '.env.test', '.env.staging', '.env.prod'),
+        env_file_encoding='utf-8'
+    )
 
     log_server_host: Union[IPvAnyAddress, str] = Field(
         default="0.0.0.0",
@@ -53,9 +58,6 @@ class Settings(BaseSettings):
         description="The port used in the Zabbix instance.",
     )
 
-    class Config:
-        env_file = '.env', '.env.dev', '.env.test', '.env.staging', '.env.prod'
-        env_file_encoding = 'utf-8'
 
 
 @lru_cache

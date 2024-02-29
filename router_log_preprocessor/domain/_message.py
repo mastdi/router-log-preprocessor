@@ -11,6 +11,8 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+import typing
+import typing_extensions
 
 import pydantic.dataclasses
 from macaddress import EUI48
@@ -19,21 +21,16 @@ from macaddress import EUI48
 class MAC(EUI48):
     """Implementation of EUI48 which contains validators used by pydantic."""
 
-    @classmethod
-    def __get_validators__(cls):
-        yield cls.validate
 
-    @classmethod
-    def validate(cls, value: str) -> "MAC":
-        """Validates (and constructs) an instance
-        :param value: The string value representation of the MAC address
-        :return: The mac address
-
-        :raise ValueError: If the provided mac address is invalid.
-        """
-        return cls(value)
+def validate_mac(value: typing.Union[MAC, str]) -> MAC:
+    if isinstance(value, MAC):
+        return value
+    try:
+        return MAC(value)
+    except Exception as exception:
+        raise ValueError("Invalid MAC address") from exception
 
 
 @pydantic.dataclasses.dataclass
 class Message:
-    mac_address: MAC
+    mac_address: typing_extensions.Annotated[MAC, pydantic.PlainValidator(validate_mac)]
