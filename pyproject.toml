@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "router-log-preprocessor"
-version = "0.1.7"
+version = "0.2.0"
 description = ""
 repository = "https://github.com/mastdi/router-log-preprocessor"
 authors = ["Martin Storgaard Dieu <martin@storgaarddieu.com>"]
